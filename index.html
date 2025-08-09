@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MP Salodiya</title>
+    <title>दुकान मैनेजमेंट ऐप</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
@@ -121,14 +121,14 @@
         <!-- Navigation Tabs -->
         <nav class="bg-white border-b border-gray-200 no-print">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex space-x-8">
-                    <button id="homeTab" class="tab-btn border-b-2 border-blue-500 text-blue-600 py-4 px-1 text-sm font-medium">
+                <div class="flex">
+                    <button id="homeTab" class="tab-btn flex-1 text-center border-b-2 border-blue-500 text-blue-600 py-4 px-1 text-sm font-medium">
                         🏠 होम
                     </button>
-                    <button id="accountTab" class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                    <button id="accountTab" class="tab-btn flex-1 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
                         📖 बहीखाता
                     </button>
-                    <button id="calculatorTab" class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                    <button id="calculatorTab" class="tab-btn flex-1 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
                         🧮 कैलकुलेटर
                     </button>
                 </div>
@@ -236,7 +236,7 @@
                                 <div class="text-sm text-blue-600 font-medium mb-1">गणना के चरण:</div>
                                 <div id="calcStepsContent" class="text-lg font-bold text-blue-800">0</div>
                             </div>
-                            <input id="calcDisplay" type="text" class="w-full p-4 text-right text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" readonly>
+                            <input id="calcDisplay" type="text" class="w-full p-4 text-right text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" oninput="handleDisplayInput()" onkeydown="handleKeyDown(event)">
                         </div>
                         <div class="grid grid-cols-4 gap-3">
                             <button class="calc-btn bg-red-500 hover:bg-red-600 text-white p-4 rounded-md text-xl font-semibold" onclick="clearCalculator()">C</button>
@@ -252,15 +252,15 @@
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('+')">+</button>
+                            <button class="calc-btn bg-green-500 hover:bg-green-600 text-white p-4 rounded-md text-xl font-semibold row-span-2" onclick="appendToDisplay('+')">+</button>
                             
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
-                            <button class="calc-btn bg-green-500 hover:bg-green-600 text-white p-4 rounded-md text-xl font-semibold row-span-2" onclick="calculate()">=</button>
                             
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
                             <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="calculate()">=</button>
                         </div>
                         
                         <div class="mt-4 flex gap-2">
@@ -564,17 +564,18 @@
                     variantsHtml = item.variants.map(variant => 
                         `<div class="text-sm mb-1">
                             <div class="text-left">
-                                <span class="font-bold text-lg text-green-700">₹${Math.round(variant.price)}</span>
-                                <span class="text-gray-600 ml-2">${variant.type}</span>
+                                ${variant.price > 0 ? `<span class="font-bold text-lg text-green-700">₹${Math.round(variant.price)}</span>` : ''}
+                                <span class="text-gray-600 ${variant.price > 0 ? 'ml-2' : ''}">${variant.type}</span>
                             </div>
                         </div>`
                     ).join('');
                 } else {
                     // Legacy support for old format
+                    const price = item.price || 0;
                     variantsHtml = `<div class="text-sm mb-1">
                         <div class="text-left">
-                            <span class="font-bold text-lg text-green-700">₹${Math.round(item.price || 0)}</span>
-                            <span class="text-gray-600 ml-2">${item.type || 'सामान्य'}</span>
+                            ${price > 0 ? `<span class="font-bold text-lg text-green-700">₹${Math.round(price)}</span>` : ''}
+                            <span class="text-gray-600 ${price > 0 ? 'ml-2' : ''}">${item.type || 'सामान्य'}</span>
                         </div>
                     </div>`;
                 }
@@ -646,7 +647,6 @@
             // Reset to single variant
             const variantsContainer = document.getElementById('priceVariants');
             variantsContainer.innerHTML = '';
-            addVariantRow();
         }
 
         function addVariantRow(type = 'प्रति किलो', price = '') {
@@ -1006,7 +1006,26 @@
 
         function appendToDisplay(value) {
             const display = document.getElementById('calcDisplay');
-            calcDisplay += value;
+            
+            // Prevent multiple consecutive operators
+            const operators = ['+', '-', '*', '/'];
+            const lastChar = calcDisplay.slice(-1);
+            
+            if (operators.includes(value) && operators.includes(lastChar)) {
+                // Replace the last operator with the new one
+                calcDisplay = calcDisplay.slice(0, -1) + value;
+            } else if (value === '.' && calcDisplay.includes('.')) {
+                // Prevent multiple decimal points in the same number
+                const parts = calcDisplay.split(/[+\-*/]/);
+                const lastPart = parts[parts.length - 1];
+                if (lastPart.includes('.')) {
+                    return; // Don't add another decimal point
+                }
+                calcDisplay += value;
+            } else {
+                calcDisplay += value;
+            }
+            
             display.value = calcDisplay;
             updateCalcSteps();
         }
@@ -1024,35 +1043,116 @@
             updateCalcSteps();
         }
 
+        function handleDisplayInput() {
+            const display = document.getElementById('calcDisplay');
+            let value = display.value;
+            
+            // Clean the input to prevent invalid characters
+            value = value.replace(/[^0-9+\-*/.]/g, '');
+            
+            // Prevent multiple consecutive operators
+            value = value.replace(/([+\-*/]){2,}/g, '$1');
+            
+            // Prevent multiple decimal points in the same number
+            const parts = value.split(/([+\-*/])/);
+            for (let i = 0; i < parts.length; i++) {
+                if (!/[+\-*/]/.test(parts[i])) {
+                    // This is a number part, check for multiple decimal points
+                    const decimalCount = (parts[i].match(/\./g) || []).length;
+                    if (decimalCount > 1) {
+                        // Keep only the first decimal point
+                        const firstDecimalIndex = parts[i].indexOf('.');
+                        parts[i] = parts[i].substring(0, firstDecimalIndex + 1) + parts[i].substring(firstDecimalIndex + 1).replace(/\./g, '');
+                    }
+                }
+            }
+            value = parts.join('');
+            
+            calcDisplay = value;
+            display.value = calcDisplay;
+            updateCalcSteps();
+        }
+
+        function handleKeyDown(event) {
+            // Allow Enter key to calculate
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                calculate();
+                return;
+            }
+            
+            // Allow control keys
+            const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'];
+            if (controlKeys.includes(event.key) || event.ctrlKey) {
+                return;
+            }
+            
+            // Allow only numbers, operators, and decimal point
+            const allowedKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '*', '/', '.'];
+            if (!allowedKeys.includes(event.key)) {
+                event.preventDefault();
+                return;
+            }
+            
+            // Prevent multiple consecutive operators
+            const operators = ['+', '-', '*', '/'];
+            const currentValue = event.target.value;
+            const lastChar = currentValue.slice(-1);
+            
+            if (operators.includes(event.key) && operators.includes(lastChar)) {
+                event.preventDefault();
+                return;
+            }
+            
+            // Prevent multiple decimal points in current number
+            if (event.key === '.') {
+                const parts = currentValue.split(/[+\-*/]/);
+                const lastPart = parts[parts.length - 1];
+                if (lastPart.includes('.')) {
+                    event.preventDefault();
+                    return;
+                }
+            }
+        }
+
         function updateCalcSteps() {
             const stepsContent = document.getElementById('calcStepsContent');
             if (calcDisplay) {
                 try {
                     // Try to evaluate intermediate results
-                    const parts = calcDisplay.split(/([+\-*/])/);
-                    let currentResult = 0;
-                    let operator = '+';
-                    let stepText = '';
+                    let expression = calcDisplay.replace(/×/g, '*');
                     
-                    for (let i = 0; i < parts.length; i++) {
-                        const part = parts[i].trim();
-                        if (part && !isNaN(part)) {
-                            const num = parseFloat(part);
-                            if (operator === '+') currentResult += num;
-                            else if (operator === '-') currentResult -= num;
-                            else if (operator === '*') currentResult *= num;
-                            else if (operator === '/') currentResult /= num;
-                            
-                            stepText += (stepText ? ` ${operator} ` : '') + Math.round(num);
-                        } else if (['+', '-', '*', '/'].includes(part)) {
-                            operator = part;
-                        }
+                    // Handle incomplete expressions (ending with operators)
+                    let cleanExpression = expression;
+                    if (/[+\-*/]$/.test(expression)) {
+                        cleanExpression = expression.slice(0, -1);
                     }
                     
-                    if (stepText) {
-                        stepsContent.textContent = `${stepText} = ${Math.round(currentResult)}`;
+                    if (cleanExpression && cleanExpression.trim() && cleanExpression !== '0') {
+                        // Validate expression
+                        if (!/^[0-9+\-*/.() ]+$/.test(cleanExpression)) {
+                            stepsContent.textContent = calcDisplay || '0';
+                            return;
+                        }
+                        
+                        // Check for division by zero
+                        if (cleanExpression.includes('/0')) {
+                            stepsContent.textContent = `${calcDisplay} = Error`;
+                            return;
+                        }
+                        
+                        const result = eval(cleanExpression);
+                        
+                        // Check if result is valid
+                        if (isNaN(result) || !isFinite(result)) {
+                            stepsContent.textContent = calcDisplay || '0';
+                            return;
+                        }
+                        
+                        const roundedResult = Math.round(result);
+                        stepsContent.textContent = `${calcDisplay} = ${roundedResult}`;
                     } else {
-                        stepsContent.textContent = calcDisplay;
+                        stepsContent.textContent = calcDisplay || '0';
                     }
                 } catch (e) {
                     stepsContent.textContent = calcDisplay || '0';
@@ -1064,13 +1164,48 @@
 
         function calculate() {
             try {
-                const result = eval(calcDisplay.replace('×', '*'));
-                calcDisplay = Math.round(result).toString();
+                let expression = calcDisplay.replace(/×/g, '*');
+                
+                // Handle incomplete expressions (ending with operators)
+                if (/[+\-*/]$/.test(expression)) {
+                    expression = expression.slice(0, -1);
+                }
+                
+                // Check for empty or invalid expression
+                if (!expression || !expression.trim() || expression === '0') {
+                    document.getElementById('calcStepsContent').textContent = '0';
+                    return;
+                }
+                
+                // Validate expression before evaluation
+                if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
+                    updateCalcSteps();
+                    return;
+                }
+                
+                // Check for division by zero
+                if (expression.includes('/0')) {
+                    document.getElementById('calcStepsContent').textContent = 'Error: Division by zero';
+                    return;
+                }
+                
+                const result = eval(expression);
+                
+                // Check if result is valid
+                if (isNaN(result) || !isFinite(result)) {
+                    document.getElementById('calcStepsContent').textContent = 'Error';
+                    return;
+                }
+                
+                // Round result and update display
+                const roundedResult = Math.round(result);
+                calcDisplay = roundedResult.toString();
                 document.getElementById('calcDisplay').value = calcDisplay;
-                document.getElementById('calcStepsContent').textContent = Math.round(result);
+                document.getElementById('calcStepsContent').textContent = roundedResult;
+                
             } catch (error) {
-                alert('गलत गणना');
-                clearCalculator();
+                // Show error in steps without changing display
+                document.getElementById('calcStepsContent').textContent = 'Error';
             }
         }
 
@@ -1186,7 +1321,7 @@
             const variantDiv = document.createElement('div');
             variantDiv.className = 'flex gap-2 items-center price-variant';
             variantDiv.innerHTML = `
-                <input type="number" class="w-32 p-2 border border-gray-300 rounded-md variant-price" placeholder="दर (₹)" value="${price}" required>
+                <input type="number" class="w-32 p-2 border border-gray-300 rounded-md variant-price" placeholder="दर (₹)" value="${price}">
                 <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
                     <option value="प्रति किलो" ${type === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
                     <option value="प्रति नग" ${type === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
@@ -1208,23 +1343,13 @@
             // Add event listener for variant type change
             const select = variantDiv.querySelector('.variant-type');
             const customInput = variantDiv.querySelector('.custom-type');
-            const priceInput = variantDiv.querySelector('.variant-price');
             
             select.addEventListener('change', function() {
                 if (this.value === 'अन्य') {
                     customInput.classList.remove('hidden');
-                    customInput.required = true;
                 } else {
                     customInput.classList.add('hidden');
-                    customInput.required = false;
                     customInput.value = '';
-                }
-            });
-            
-            // Auto-add next variant when price is filled
-            priceInput.addEventListener('input', function() {
-                if (this.value && !variantDiv.nextElementSibling) {
-                    addVariantRow();
                 }
             });
         }
@@ -1570,11 +1695,54 @@
                     <head>
                         <title>पेमेंट नोटिस</title>
                         <style>
-                            body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                            @page {
+                                size: A4;
+                                margin: 15mm;
+                            }
+                            body { 
+                                font-family: 'Noto Sans Devanagari', Arial, sans-serif; 
+                                margin: 0;
+                                padding: 0;
+                                width: 100%;
+                                height: 100vh;
+                                background: white;
+                                color: black;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            }
+                            .notice-container {
+                                width: 160mm;
+                                max-width: 160mm;
+                                padding: 40px;
+                                border: 3px solid #333;
+                                border-radius: 12px;
+                                background: white;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                            }
+                            .text-center { text-align: center; }
+                            .text-xl { font-size: 1.8rem; line-height: 1.4; }
+                            .text-lg { font-size: 1.4rem; line-height: 1.3; }
+                            .text-sm { font-size: 1rem; line-height: 1.2; }
+                            .font-bold { font-weight: bold; }
+                            .font-medium { font-weight: 500; }
+                            .mb-4 { margin-bottom: 1.5rem; }
+                            .mb-2 { margin-bottom: 0.8rem; }
+                            .my-4 { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+                            .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+                            .border-t { border-top: 2px solid #333; }
+                            .border-b { border-bottom: 2px solid #333; }
+                            .text-gray-600 { color: #555; }
+                            .text-red-600 { color: #dc2626; font-size: 1.6rem; }
+                            .flex { display: flex; }
+                            .justify-between { justify-content: space-between; }
+                            .items-center { align-items: center; }
                         </style>
                     </head>
                     <body>
-                        ${noticeContent}
+                        <div class="notice-container">
+                            ${noticeContent}
+                        </div>
                     </body>
                     </html>
                 `);
@@ -1583,42 +1751,113 @@
             });
 
             document.getElementById('saveNoticeImage').addEventListener('click', function() {
-                // Create a canvas to convert HTML to image
+                // Get the notice content
                 const noticeContent = document.getElementById('noticeContent');
+                
+                // Create a high-quality canvas
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Set canvas size
-                canvas.width = 400;
-                canvas.height = 300;
+                // Set high resolution canvas size (A4 proportions)
+                const scale = 3; // For high quality
+                canvas.width = 600 * scale;
+                canvas.height = 800 * scale;
+                ctx.scale(scale, scale);
                 
                 // Fill white background
                 ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, 600, 800);
                 
-                // Add text content (simplified version)
+                // Draw border
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(30, 50, 540, 700);
+                
+                // Set text properties
                 ctx.fillStyle = 'black';
-                ctx.font = '16px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(shopTitle, canvas.width/2, 30);
-                ctx.font = '12px Arial';
-                ctx.fillText('पेमेंट नोटिस', canvas.width/2, 50);
-                ctx.fillText(`दिनांक: ${new Date().toLocaleDateString('hi-IN')}`, canvas.width/2, 70);
+                
+                // Shop title
+                ctx.font = 'bold 28px Arial';
+                ctx.fillText(shopTitle, 300, 120);
+                
+                // Notice title
+                ctx.font = '18px Arial';
+                ctx.fillStyle = '#666';
+                ctx.fillText('पेमेंट नोटिस', 300, 150);
+                
+                // Date
+                ctx.font = '16px Arial';
+                ctx.fillText(`दिनांक: ${new Date().toLocaleDateString('hi-IN')}`, 300, 180);
+                
+                // Extract customer name and amount from notice content
+                const customerNameMatch = noticeContent.innerHTML.match(/ग्राहक का नाम:<\/span>\s*<span[^>]*>([^<]+)<\/span>/);
+                const amountMatch = noticeContent.innerHTML.match(/कुल बकाया राशि:<\/span>\s*<span[^>]*>([^<]+)<\/span>/);
+                
+                const customerName = customerNameMatch ? customerNameMatch[1] : 'N/A';
+                const amount = amountMatch ? amountMatch[1] : '₹0';
+                
+                // Draw horizontal line
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(80, 220);
+                ctx.lineTo(520, 220);
+                ctx.stroke();
+                
+                // Customer details
+                ctx.fillStyle = 'black';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('ग्राहक का नाम:', 80, 270);
+                ctx.font = 'bold 22px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(customerName, 520, 270);
+                
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('कुल बकाया राशि:', 80, 320);
+                ctx.font = 'bold 32px Arial';
+                ctx.fillStyle = '#dc2626';
+                ctx.textAlign = 'right';
+                ctx.fillText(amount, 520, 320);
+                
+                // Draw horizontal line
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(80, 350);
+                ctx.lineTo(520, 350);
+                ctx.stroke();
+                
+                // Footer message
+                ctx.fillStyle = '#666';
+                ctx.font = '18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('कृपया जल्द से जल्द भुगतान करें।', 300, 420);
+                ctx.fillText('धन्यवाद!', 300, 450);
                 
                 // Convert to blob and download
                 canvas.toBlob(function(blob) {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'payment-notice.png';
+                    a.download = `payment-notice-${customerName.replace(/\s+/g, '-')}.png`;
+                    document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                });
+                }, 'image/png', 1.0);
             });
 
             document.getElementById('addItemForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const name = document.getElementById('itemName').value.trim();
+                
+                if (!name) {
+                    alert('वस्तु का नाम जरूरी है');
+                    return;
+                }
                 
                 // Collect all variants
                 const variants = [];
@@ -1634,16 +1873,27 @@
                         type = customInput.value.trim();
                     }
                     
-                    const price = Math.round(parseFloat(priceInput.value));
+                    const price = parseFloat(priceInput.value);
                     
                     if (type && price > 0) {
-                        variants.push({ type, price });
+                        variants.push({ type, price: Math.round(price) });
                     }
                 });
 
+                // If no variants with price, create one with just type
                 if (variants.length === 0) {
-                    alert('कम से कम एक प्रकार और दर जोड़ें');
-                    return;
+                    const firstVariant = variantElements[0];
+                    if (firstVariant) {
+                        const typeSelect = firstVariant.querySelector('.variant-type');
+                        const customInput = firstVariant.querySelector('.custom-type');
+                        
+                        let type = typeSelect.value;
+                        if (type === 'अन्य' && customInput.value.trim()) {
+                            type = customInput.value.trim();
+                        }
+                        
+                        variants.push({ type, price: 0 });
+                    }
                 }
 
                 const itemData = { 
@@ -1930,5 +2180,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9689851b7849e',t:'MTc1NDc2NTEwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9911b612a80bb',t:'MTc1NDc2Njc2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
