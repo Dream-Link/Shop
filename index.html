@@ -140,10 +140,10 @@
             
             <!-- Home Mode -->
             <div id="homeMode" class="tab-content">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="bg-white rounded-lg shadow p-3 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                         <h2 class="text-lg font-semibold text-gray-900">वस्तुओं की दर सूची</h2>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2 sm:gap-3">
                             <!-- Search Icon -->
                             <button id="searchItemBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="खोजें">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +173,7 @@
                     
                     <!-- Search Input (Hidden by default) -->
                     <div id="itemSearchContainer" class="hidden mb-4">
-                        <input type="text" id="itemSearchInput" class="w-full p-3 border border-gray-300 rounded-md" placeholder="वस्तु का नाम खोजें...">
+                        <input type="text" id="itemSearchInput" class="w-full p-3 border border-gray-300 rounded-md text-base" placeholder="वस्तु का नाम खोजें...">
                     </div>
                     
                     <div id="itemsList" class="space-y-3">
@@ -184,10 +184,10 @@
 
             <!-- Account Mode -->
             <div id="accountMode" class="tab-content hidden">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="bg-white rounded-lg shadow p-3 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                         <h2 class="text-lg font-semibold text-gray-900">बहीखाता</h2>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2 sm:gap-3">
                             <!-- Search Icon -->
                             <button id="searchCustomerBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="खोजें">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,7 +218,7 @@
                     
                     <!-- Search Input (Hidden by default) -->
                     <div id="customerSearchContainer" class="hidden mb-4">
-                        <input type="text" id="customerSearchInput" class="w-full p-3 border border-gray-300 rounded-md" placeholder="ग्राहक का नाम खोजें...">
+                        <input type="text" id="customerSearchInput" class="w-full p-3 border border-gray-300 rounded-md text-base" placeholder="ग्राहक का नाम खोजें...">
                     </div>
                     
                     <div id="customersList" class="space-y-4">
@@ -229,47 +229,47 @@
 
             <!-- Calculator Mode -->
             <div id="calculatorMode" class="tab-content hidden">
-                <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+                <div class="bg-white rounded-lg shadow p-3 sm:p-6 max-w-sm sm:max-w-md mx-auto">
                     <div class="calculator">
-                        <div class="mb-4">
-                            <div id="calcSteps" class="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-md min-h-[60px]">
-                                <div class="text-sm text-blue-600 font-medium mb-1">गणना के चरण:</div>
-                                <div id="calcStepsContent" class="text-lg font-bold text-blue-800">0</div>
+                        <div class="mb-3 sm:mb-4">
+                            <div id="calcSteps" class="mb-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-md min-h-[50px] sm:min-h-[60px]">
+                                <div class="text-xs sm:text-sm text-blue-600 font-medium mb-1">गणना के चरण:</div>
+                                <div id="calcStepsContent" class="text-sm sm:text-lg font-bold text-blue-800 break-all">0</div>
                             </div>
-                            <input id="calcDisplay" type="text" class="w-full p-4 text-right text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" oninput="handleDisplayInput()" onkeydown="handleKeyDown(event)">
+                            <input id="calcDisplay" type="text" class="w-full p-3 sm:p-4 text-right text-lg sm:text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" oninput="handleDisplayInput()" onkeydown="handleKeyDown(event)">
                         </div>
-                        <div class="grid grid-cols-4 gap-3">
-                            <button class="calc-btn bg-red-500 hover:bg-red-600 text-white p-4 rounded-md text-xl font-semibold" onclick="clearCalculator()">C</button>
-                            <button class="calc-btn bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-md text-xl font-semibold" onclick="deleteLast()">⌫</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('/')">/</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('*')">×</button>
+                        <div class="grid grid-cols-4 gap-2 sm:gap-3">
+                            <button class="calc-btn bg-red-500 hover:bg-red-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="clearCalculator()">C</button>
+                            <button class="calc-btn bg-orange-500 hover:bg-orange-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="deleteLast()">⌫</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('/')">/</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('*')">×</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('7')">7</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('8')">8</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('9')">9</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('-')">-</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('7')">7</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('8')">8</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('9')">9</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('-')">-</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
-                            <button class="calc-btn bg-green-500 hover:bg-green-600 text-white p-4 rounded-md text-xl font-semibold row-span-2" onclick="appendToDisplay('+')">+</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
+                            <button class="calc-btn bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold row-span-2" onclick="appendToDisplay('+')">+</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="calculate()">=</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="calculate()">=</button>
                         </div>
                         
-                        <div class="mt-4 flex gap-2">
-                            <button id="calcHistoryBtn" class="p-3 bg-gray-500 hover:bg-gray-600 text-white rounded-md" title="हिस्ट्री देखें" onclick="openCalcHistory()">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="mt-3 sm:mt-4 flex gap-2">
+                            <button id="calcHistoryBtn" class="p-2 sm:p-3 bg-gray-500 hover:bg-gray-600 text-white rounded-md" title="हिस्ट्री देखें" onclick="openCalcHistory()">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </button>
-                            <button id="addToBahikhataBtn" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md font-semibold" onclick="openCalcToBahikhata()">
+                            <button id="addToBahikhataBtn" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white p-2 sm:p-3 rounded-md text-sm sm:text-base font-semibold" onclick="openCalcToBahikhata()">
                                 📖 बहीखाता में जोड़ें
                             </button>
                         </div>
@@ -280,21 +280,21 @@
     </div>
 
     <!-- Add/Edit Item Modal -->
-    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
-        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-lg mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
             <h3 id="itemModalTitle" class="text-lg font-semibold mb-4">नई वस्तु जोड़ें</h3>
             <form id="addItemForm">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">वस्तु का नाम</label>
-                    <input type="text" id="itemName" class="w-full p-3 border border-gray-300 rounded-md" required>
+                    <input type="text" id="itemName" class="w-full p-3 border border-gray-300 rounded-md text-base" required>
                 </div>
                 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">दर और प्रकार</label>
                     <div id="priceVariants" class="space-y-3">
-                        <div class="flex gap-2 items-center price-variant">
-                            <input type="number" class="w-32 p-2 border border-gray-300 rounded-md variant-price" placeholder="दर (₹)" required>
-                            <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
+                        <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center price-variant">
+                            <input type="number" class="w-full sm:w-32 p-2 border border-gray-300 rounded-md variant-price text-base" placeholder="दर (₹)" required>
+                            <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type text-base">
                                 <option value="प्रति किलो">प्रति किलो</option>
                                 <option value="प्रति नग">प्रति नग</option>
                                 <option value="प्रति दर्जन">प्रति दर्जन</option>
@@ -303,8 +303,8 @@
                                 <option value="प्रति मीटर">प्रति मीटर</option>
                                 <option value="अन्य">अन्य</option>
                             </select>
-                            <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type hidden" placeholder="कस्टम प्रकार">
-                            <button type="button" class="text-red-500 hover:text-red-700 remove-variant" onclick="removeVariant(this)">
+                            <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type hidden text-base" placeholder="कस्टम प्रकार">
+                            <button type="button" class="text-red-500 hover:text-red-700 remove-variant p-2 sm:p-0" onclick="removeVariant(this)">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -314,27 +314,27 @@
                     <button type="button" id="addVariant" class="mt-2 text-blue-500 hover:text-blue-700 text-sm">+ नया प्रकार जोड़ें</button>
                 </div>
                 
-                <div class="flex gap-3">
-                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">सेव करें</button>
-                    <button type="button" id="cancelAddItem" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
-                    <button type="button" id="deleteItem" class="hidden bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md" onclick="deleteItem()">हटाएं</button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-md text-base">सेव करें</button>
+                    <button type="button" id="cancelAddItem" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
+                    <button type="button" id="deleteItem" class="hidden bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-md text-base" onclick="deleteItem()">हटाएं</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Add Customer Modal -->
-    <div id="addCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div id="addCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-2 sm:mx-4">
             <h3 class="text-lg font-semibold mb-4">नया ग्राहक जोड़ें</h3>
             <form id="addCustomerForm">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक का नाम</label>
-                    <input type="text" id="customerName" class="w-full p-3 border border-gray-300 rounded-md" required>
+                    <input type="text" id="customerName" class="w-full p-3 border border-gray-300 rounded-md text-base" required>
                 </div>
-                <div class="flex gap-3">
-                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">जोड़ें</button>
-                    <button type="button" id="cancelAddCustomer" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md text-base">जोड़ें</button>
+                    <button type="button" id="cancelAddCustomer" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
                 </div>
             </form>
         </div>
@@ -373,14 +373,14 @@
     </div>
 
     <!-- Calculator to Bahikhata Modal -->
-    <div id="calcToBahikhataModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div id="calcToBahikhataModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-2 sm:mx-4">
             <h3 class="text-lg font-semibold mb-4">बहीखाता में जोड़ें</h3>
             <form id="calcToBahikhataForm">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक चुनें या नाम लिखें</label>
                     <div class="relative">
-                        <input type="text" id="calcCustomerInput" class="w-full p-3 border border-gray-300 rounded-md" placeholder="ग्राहक का नाम लिखें या चुनें" required>
+                        <input type="text" id="calcCustomerInput" class="w-full p-3 border border-gray-300 rounded-md text-base" placeholder="ग्राहक का नाम लिखें या चुनें" required>
                         <div id="calcCustomerDropdown" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto">
                             <!-- Customer options will be populated here -->
                         </div>
@@ -388,15 +388,15 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">राशि</label>
-                    <input type="number" id="calcAmount" class="w-full p-3 border border-gray-300 rounded-md" step="0.01" readonly>
+                    <input type="number" id="calcAmount" class="w-full p-3 border border-gray-300 rounded-md text-base" step="0.01" readonly>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">सामान का विवरण</label>
-                    <textarea id="calcItemDescription" class="w-full p-3 border border-gray-300 rounded-md" rows="3" placeholder="सामान का विवरण लिखें..."></textarea>
+                    <textarea id="calcItemDescription" class="w-full p-3 border border-gray-300 rounded-md text-base" rows="3" placeholder="सामान का विवरण लिखें..."></textarea>
                 </div>
-                <div class="flex gap-3">
-                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">जोड़ें</button>
-                    <button type="button" id="cancelCalcToBahikhata" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md text-base">जोड़ें</button>
+                    <button type="button" id="cancelCalcToBahikhata" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
                 </div>
             </form>
         </div>
@@ -428,6 +428,36 @@
                 <button id="clearCalcHistory" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">हिस्ट्री साफ़ करें</button>
                 <button id="closeCalcHistory" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">बंद करें</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Add Payment Modal -->
+    <div id="addPaymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-2 sm:mx-4">
+            <h3 class="text-lg font-semibold mb-4">जमा राशि</h3>
+            <form id="addPaymentForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक का नाम</label>
+                    <input type="text" id="paymentCustomerName" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 text-base" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">कुल बकाया राशि</label>
+                    <input type="text" id="totalDueAmount" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 text-base" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">जमा करने वाली राशि</label>
+                    <input type="number" id="paymentAmount" class="w-full p-3 border border-gray-300 rounded-md text-base" step="0.01" placeholder="राशि दर्ज करें" required>
+                </div>
+                <div class="mb-4">
+                    <button type="button" id="payFullAmount" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md mb-2 text-base">
+                        पूरी राशि जमा करें
+                    </button>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-md text-base">जमा करें</button>
+                    <button type="button" id="cancelAddPayment" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -742,26 +772,30 @@
                             <button onclick="addTransaction(${actualIndex})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
                                 + जोड़ें
                             </button>
-                            <button onclick="sendNotice(${actualIndex})" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm" title="नोटिस भेजें">
-                                📤
-                            </button>
                             <div class="relative">
                                 <button onclick="toggleCustomerMenu(${actualIndex})" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm customer-menu-btn">
                                     ⋮
                                 </button>
-                                <div id="customerMenu${actualIndex}" class="hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                <div id="customerMenu${actualIndex}" class="hidden absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                    <button onclick="addPayment(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-gray-100">
+                                        💰 जमा
+                                    </button>
+                                    <button onclick="sendNotice(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-gray-100">
+                                        📤 नोटिस भेजें
+                                    </button>
                                     <button onclick="printCustomer(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        प्रिंट
+                                        🖨️ प्रिंट
                                     </button>
                                     <button onclick="deleteCustomer(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                        हटाएं
+                                        🗑️ हटाएं
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="customerDetails${actualIndex}" class="hidden space-y-2 border-t border-gray-200 pt-3">
-                        ${customer.transactions.map((t, tIndex) => {
+                        ${customer.transactions.slice().reverse().map((t, reverseIndex) => {
+                            const tIndex = customer.transactions.length - 1 - reverseIndex;
                             let itemsDisplay = '';
                             if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
                                 itemsDisplay = t.itemsWithAmounts.map(item => `${item.name} (₹${Math.round(item.amount)})`).join(', ');
@@ -771,13 +805,20 @@
                                 itemsDisplay = t.item || '';
                             }
                             
+                            // Check if this is a payment transaction
+                            const isPayment = t.type === 'payment';
+                            const bgColor = isPayment ? 'bg-blue-50' : 'bg-gray-50';
+                            const textColor = isPayment ? 'text-blue-600' : 'text-green-600';
+                            const prefix = isPayment ? 'जमा: -₹' : '₹';
+                            
                             return `
-                            <div class="text-sm bg-gray-50 p-3 rounded">
+                            <div class="text-sm ${bgColor} p-3 rounded">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="text-left">
-                                        <span class="font-bold text-green-600">₹${Math.round(t.amount)}</span>
+                                        <span class="font-bold ${textColor}">${prefix}${Math.round(Math.abs(t.amount))}</span>
                                         <span class="font-medium ml-2">${itemsDisplay}</span>
                                         ${t.buyer && t.buyer !== customer.name ? `<span class="text-gray-600 text-sm ml-2">(${t.buyer})</span>` : ''}
+                                        ${t.remainingAmount !== undefined ? `<div class="text-xs text-gray-600 mt-1">बाकी: ₹${Math.round(t.remainingAmount)}</div>` : ''}
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <span class="text-xs text-gray-500">${new Date(t.date).toLocaleString('hi-IN')}</span>
@@ -1003,6 +1044,7 @@
         // Calculator Functions
         let calcDisplay = '';
         let calcSteps = [];
+        let currentCalculation = '';
 
         function appendToDisplay(value) {
             const display = document.getElementById('calcDisplay');
@@ -1033,6 +1075,7 @@
         function clearCalculator() {
             calcDisplay = '';
             calcSteps = [];
+            currentCalculation = '';
             document.getElementById('calcDisplay').value = '';
             document.getElementById('calcStepsContent').textContent = '0';
         }
@@ -1117,52 +1160,69 @@
 
         function updateCalcSteps() {
             const stepsContent = document.getElementById('calcStepsContent');
-            if (calcDisplay) {
-                try {
-                    // Try to evaluate intermediate results
-                    let expression = calcDisplay.replace(/×/g, '*');
-                    
-                    // Handle incomplete expressions (ending with operators)
-                    let cleanExpression = expression;
-                    if (/[+\-*/]$/.test(expression)) {
-                        cleanExpression = expression.slice(0, -1);
-                    }
-                    
-                    if (cleanExpression && cleanExpression.trim() && cleanExpression !== '0') {
-                        // Validate expression
-                        if (!/^[0-9+\-*/.() ]+$/.test(cleanExpression)) {
-                            stepsContent.textContent = calcDisplay || '0';
-                            return;
-                        }
-                        
-                        // Check for division by zero
-                        if (cleanExpression.includes('/0')) {
-                            stepsContent.textContent = `${calcDisplay} = Error`;
-                            return;
-                        }
-                        
-                        const result = eval(cleanExpression);
-                        
-                        // Check if result is valid
-                        if (isNaN(result) || !isFinite(result)) {
-                            stepsContent.textContent = calcDisplay || '0';
-                            return;
-                        }
-                        
-                        const roundedResult = Math.round(result);
-                        stepsContent.textContent = `${calcDisplay} = ${roundedResult}`;
-                    } else {
-                        stepsContent.textContent = calcDisplay || '0';
-                    }
-                } catch (e) {
-                    stepsContent.textContent = calcDisplay || '0';
-                }
-            } else {
+            
+            if (!calcDisplay) {
                 stepsContent.textContent = '0';
+                return;
+            }
+            
+            try {
+                // Show current expression being typed
+                let displayExpression = calcDisplay.replace(/\*/g, '×');
+                
+                // Try to evaluate if expression is complete
+                let expression = calcDisplay.replace(/×/g, '*');
+                
+                // Handle incomplete expressions (ending with operators)
+                let cleanExpression = expression;
+                if (/[+\-*/]$/.test(expression)) {
+                    cleanExpression = expression.slice(0, -1);
+                    stepsContent.textContent = displayExpression;
+                    return;
+                }
+                
+                if (cleanExpression && cleanExpression.trim() && cleanExpression !== '0') {
+                    // Validate expression
+                    if (!/^[0-9+\-*/.() ]+$/.test(cleanExpression)) {
+                        stepsContent.textContent = displayExpression;
+                        return;
+                    }
+                    
+                    // Check for division by zero
+                    if (cleanExpression.includes('/0')) {
+                        stepsContent.textContent = `${displayExpression} = Error`;
+                        return;
+                    }
+                    
+                    const result = eval(cleanExpression);
+                    
+                    // Check if result is valid
+                    if (isNaN(result) || !isFinite(result)) {
+                        stepsContent.textContent = displayExpression;
+                        return;
+                    }
+                    
+                    const roundedResult = Math.round(result);
+                    
+                    // Show intermediate calculation
+                    if (cleanExpression.includes('+') || cleanExpression.includes('-') || cleanExpression.includes('*') || cleanExpression.includes('/')) {
+                        stepsContent.textContent = `${displayExpression} = ${roundedResult}`;
+                    } else {
+                        stepsContent.textContent = displayExpression;
+                    }
+                } else {
+                    stepsContent.textContent = displayExpression;
+                }
+            } catch (e) {
+                stepsContent.textContent = calcDisplay.replace(/\*/g, '×');
             }
         }
 
         function calculate() {
+            if (!calcDisplay) {
+                return;
+            }
+            
             try {
                 let expression = calcDisplay.replace(/×/g, '*');
                 
@@ -1172,20 +1232,18 @@
                 }
                 
                 // Check for empty or invalid expression
-                if (!expression || !expression.trim() || expression === '0') {
-                    document.getElementById('calcStepsContent').textContent = '0';
+                if (!expression || !expression.trim()) {
                     return;
                 }
                 
                 // Validate expression before evaluation
                 if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
-                    updateCalcSteps();
                     return;
                 }
                 
                 // Check for division by zero
                 if (expression.includes('/0')) {
-                    document.getElementById('calcStepsContent').textContent = 'Error: Division by zero';
+                    document.getElementById('calcStepsContent').textContent = 'Error: भाग शून्य से नहीं हो सकता';
                     return;
                 }
                 
@@ -1197,22 +1255,65 @@
                     return;
                 }
                 
-                // Round result and update display
+                // Round result
                 const roundedResult = Math.round(result);
+                
+                // Store the complete calculation in steps
+                const displayExpression = calcDisplay.replace(/\*/g, '×');
+                currentCalculation = `${displayExpression} = ${roundedResult}`;
+                
+                // Add to calculation steps history
+                if (!calcSteps.includes(currentCalculation)) {
+                    calcSteps.push(currentCalculation);
+                }
+                
+                // Update steps to show the complete calculation - DON'T CLEAR IT
+                document.getElementById('calcStepsContent').textContent = currentCalculation;
+                
+                // Set display to result for further calculations
                 calcDisplay = roundedResult.toString();
                 document.getElementById('calcDisplay').value = calcDisplay;
-                document.getElementById('calcStepsContent').textContent = roundedResult;
                 
             } catch (error) {
                 // Show error in steps without changing display
-                document.getElementById('calcStepsContent').textContent = 'Error';
+                document.getElementById('calcStepsContent').textContent = 'Error: गलत गणना';
             }
         }
 
+        function addPayment(customerIndex) {
+            const customer = customers[customerIndex];
+            const totalDue = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('paymentCustomerName').value = customer.name;
+            document.getElementById('totalDueAmount').value = `₹${Math.round(totalDue)}`;
+            document.getElementById('paymentAmount').value = '';
+            
+            // Store customer index for form submission
+            document.getElementById('addPaymentForm').dataset.customerIndex = customerIndex;
+            
+            document.getElementById('addPaymentModal').classList.remove('hidden');
+        }
+
         function openCalcToBahikhata() {
-            const amount = parseFloat(calcDisplay);
+            // Get the calculated result from the steps or display
+            let amount = 0;
+            
+            // First try to get from current calculation result
+            if (currentCalculation && currentCalculation.includes('=')) {
+                const parts = currentCalculation.split('=');
+                if (parts.length === 2) {
+                    amount = parseFloat(parts[1].trim());
+                }
+            }
+            
+            // If no current calculation, try from display
             if (!amount || amount <= 0) {
-                alert('पहले कोई राशि calculate करें');
+                amount = parseFloat(calcDisplay);
+            }
+            
+            // If still no valid amount, show error
+            if (!amount || amount <= 0 || isNaN(amount)) {
+                alert('पहले कोई राशि calculate करें या valid number enter करें');
                 return;
             }
             
@@ -2118,6 +2219,56 @@
                 }
             });
 
+            // Payment modal
+            document.getElementById('cancelAddPayment').addEventListener('click', function() {
+                document.getElementById('addPaymentModal').classList.add('hidden');
+            });
+
+            document.getElementById('payFullAmount').addEventListener('click', function() {
+                const totalDueText = document.getElementById('totalDueAmount').value;
+                const totalDue = parseFloat(totalDueText.replace('₹', ''));
+                document.getElementById('paymentAmount').value = totalDue;
+            });
+
+            document.getElementById('addPaymentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const customerIndex = parseInt(this.dataset.customerIndex);
+                const paymentAmount = Math.round(parseFloat(document.getElementById('paymentAmount').value));
+                
+                if (paymentAmount > 0) {
+                    const customer = customers[customerIndex];
+                    const totalDueBefore = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                    const remainingAmount = Math.max(0, totalDueBefore - paymentAmount);
+                    
+                    // Add payment transaction (negative amount to reduce debt)
+                    const paymentTransaction = {
+                        itemsWithAmounts: [{ name: 'जमा राशि', amount: -paymentAmount }],
+                        items: ['जमा राशि'],
+                        item: 'जमा राशि',
+                        amount: -paymentAmount,
+                        type: 'payment',
+                        buyer: customer.name,
+                        date: new Date().toISOString(),
+                        remainingAmount: remainingAmount
+                    };
+                    
+                    customer.transactions.push(paymentTransaction);
+                    customer.lastUpdated = new Date().toISOString();
+                    
+                    saveCustomers();
+                    renderCustomers();
+                    
+                    document.getElementById('addPaymentModal').classList.add('hidden');
+                    
+                    if (remainingAmount === 0) {
+                        alert('पूरी राशि जमा हो गई! अब कोई बकाया नहीं है।');
+                    } else {
+                        alert(`₹${paymentAmount} जमा हो गया! बाकी राशि: ₹${remainingAmount}`);
+                    }
+                }
+            });
+
             // Calculator to Bahikhata modal
             document.getElementById('cancelCalcToBahikhata').addEventListener('click', function() {
                 document.getElementById('calcToBahikhataModal').classList.add('hidden');
@@ -2180,5 +2331,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9911b612a80bb',t:'MTc1NDc2Njc2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9b18f75f3ffa7',t:'MTc1NDc2ODA5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
