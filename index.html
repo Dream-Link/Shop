@@ -3,773 +3,1932 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>दुकान रेट मैनेजर</title>
+    <title>MP Salodiya</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'media',
-        }
-    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
+        
         body {
             font-family: 'Noto Sans Devanagari', sans-serif;
         }
         
-        .alphabet-overlay {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px 0 0 10px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+        .print-only {
+            display: none;
         }
         
-        .alphabet-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .alphabet-scroll {
-            position: fixed;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .alphabet-scroll.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .long-press-menu {
-            position: absolute;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            z-index: 100;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.2s ease;
-        }
-        
-        .long-press-menu.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .long-press-menu {
-                background: #374151;
-                color: white;
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
             }
         }
         
-        .item-card {
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+        .dark {
+            background-color: #1a1a1a;
+            color: #ffffff;
         }
         
-        .variety-item {
-            border-left: 3px solid #3b82f6;
-            padding-left: 8px;
-            margin: 4px 0;
+        .dark .bg-white {
+            background-color: #2d2d2d !important;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #3d3d3d !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #4d4d4d !important;
+        }
+        
+        .dark .text-gray-900 {
+            color: #ffffff !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #d1d5db !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        
+        .dark .border-gray-300 {
+            border-color: #6b7280 !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #4b5563 !important;
+        }
+        
+        .customer-menu-btn {
+            display: none;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-300">
-    <div class="container mx-auto px-4 py-4 max-w-md relative">
-        <!-- Header with Menu -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4 flex justify-between items-center transition-colors duration-300">
-            <div>
-                <h1 class="text-xl font-bold text-gray-800 dark:text-white">🏪 दुकान रेट</h1>
-                <p class="text-gray-600 dark:text-gray-300 text-xs">कुल वस्तुएं: <span id="itemCount">0</span></p>
-            </div>
-            <div class="relative">
-                <button onclick="toggleMenu()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
-                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                    </svg>
-                </button>
-                <div id="menuDropdown" class="hidden absolute right-0 top-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-600 w-48 z-50">
-                    <button onclick="openAddModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
-                        <span>➕</span>
-                        <span>नई वस्तु जोड़ें</span>
-                    </button>
-                    <button onclick="clearAllItems()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-red-600 dark:text-red-400">
-                        <span>🗑️</span>
-                        <span>सभी हटाएं</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Search Bar -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-3 mb-4 transition-colors duration-300">
-            <div class="relative">
-                <input type="text" id="searchInput" placeholder="वस्तु खोजें..." 
-                       class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                       oninput="searchItems()" ontouchstart="showAlphabetScroll()" ontouchend="hideAlphabetScroll()">
-                <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Items List -->
-        <div class="space-y-3">
-            <div id="itemsList">
-                <!-- Items will be displayed here -->
-            </div>
-            <div id="emptyState" class="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
-                <div class="text-4xl mb-2">📝</div>
-                <p class="font-medium">कोई वस्तु नहीं मिली</p>
-                <p class="text-sm">ऊपर मेन्यू से नई वस्तु जोड़ें</p>
-            </div>
-            <div id="noResults" class="hidden text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
-                <div class="text-3xl mb-2">🔍</div>
-                <p>कोई परिणाम नहीं मिला</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Alphabet Scroll (Hidden by default) -->
-    <div id="alphabetScroll" class="alphabet-scroll flex flex-col space-y-1">
-        <!-- Alphabet buttons will be generated here -->
-    </div>
-
-    <!-- Alphabet Overlay -->
-    <div id="alphabetOverlay" class="alphabet-overlay">
-        <div id="currentLetter" class="text-2xl font-bold"></div>
-    </div>
-
-    <!-- Long Press Menu -->
-    <div id="longPressMenu" class="long-press-menu hidden">
-        <button onclick="editItemFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2 rounded-t-xl">
-            <span>✏️</span>
-            <span>संपादित करें</span>
-        </button>
-        <button onclick="addVarietyFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2">
-            <span>➕</span>
-            <span>वैरायटी जोड़ें</span>
-        </button>
-        <button onclick="deleteItemFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2 text-red-600 dark:text-red-400 rounded-b-xl">
-            <span>🗑️</span>
-            <span>हटाएं</span>
-        </button>
-    </div>
-
-    <!-- Add Item Modal -->
-    <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">नई वस्तु जोड़ें</h3>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वस्तु का नाम</label>
-                    <input type="text" id="itemName" placeholder="जैसे: चावल, दाल, चीनी..." 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वैरायटी का नाम (वैकल्पिक)</label>
-                    <input type="text" id="varietyName" placeholder="जैसे: बासमती, सोना मसूरी..." 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                </div>
-
-                <!-- Multiple Rate Inputs -->
-                <div id="rateInputs">
-                    <div class="rate-input-group">
-                        <div class="flex space-x-2">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">रेट/भाव</label>
-                                <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="50">
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">यूनिट</label>
-                                <select class="unit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                    <option value="प्रति किलो">प्रति किलो</option>
-                                    <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
-                                    <option value="प्रति नग">प्रति नग</option>
-                                    <option value="प्रति लीटर">प्रति लीटर</option>
-                                    <option value="प्रति पैकेट">प्रति पैकेट</option>
-                                    <option value="प्रति दर्जन">प्रति दर्जन</option>
-                                </select>
+<body class="bg-gray-50 transition-colors duration-300">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 no-print">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <h1 id="shopTitle" class="text-xl font-bold text-gray-900 cursor-pointer hover:text-blue-600" onclick="editShopTitle()">दुकान मैनेजमेंट</h1>
+                    
+                    <!-- Menu Button -->
+                    <div class="relative">
+                        <button id="menuBtn" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zM12 13a1 1 0 110-2 1 1 0 010 2zM12 20a1 1 0 110-2 1 1 0 010 2z"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="menuDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div class="py-1">
+                                <button id="printAllItems" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📋 सभी वस्तुओं की लिस्ट प्रिंट करें
+                                </button>
+                                <button id="printBahikhata" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📖 बहीखाता प्रिंट करें (PDF)
+                                </button>
+                                <button id="printDetailedBahikhata" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📝 विस्तृत बहीखाता प्रिंट करें (PDF)
+                                </button>
+                                <button id="editTitle" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    ✏️ दुकान का नाम बदलें
+                                </button>
+                                <hr class="my-1">
+                                <div class="px-4 py-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">थीम चुनें:</label>
+                                    <select id="themeSelect" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="auto">Auto (डिवाइस के अनुसार)</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <button onclick="addRateInput()" class="text-blue-600 dark:text-blue-400 text-sm hover:underline">+ और रेट जोड़ें</button>
-                
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="addItem()" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        ➕ जोड़ें
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-white border-b border-gray-200 no-print">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-8">
+                    <button id="homeTab" class="tab-btn border-b-2 border-blue-500 text-blue-600 py-4 px-1 text-sm font-medium">
+                        🏠 होम
                     </button>
-                    <button onclick="closeAddModal()" 
-                            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        ❌ रद्द
+                    <button id="accountTab" class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                        📖 बहीखाता
+                    </button>
+                    <button id="calculatorTab" class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                        🧮 कैलकुलेटर
                     </button>
                 </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            
+            <!-- Home Mode -->
+            <div id="homeMode" class="tab-content">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">वस्तुओं की दर सूची</h2>
+                        <div class="flex items-center gap-3">
+                            <!-- Search Icon -->
+                            <button id="searchItemBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="खोजें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                            <!-- Sort Order Icon -->
+                            <div class="relative">
+                                <button id="sortItemBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="क्रम बदलें">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+                                    </svg>
+                                </button>
+                                <select id="itemSortOrder" class="hidden absolute right-0 mt-1 p-2 border border-gray-300 rounded-md text-sm bg-white shadow-lg z-10">
+                                    <option value="name">नाम के अनुसार</option>
+                                    <option value="date">दिनांक के अनुसार</option>
+                                </select>
+                            </div>
+                            <!-- Add Item Icon -->
+                            <button id="addItemBtn" class="p-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white" title="वस्तु जोड़ें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Input (Hidden by default) -->
+                    <div id="itemSearchContainer" class="hidden mb-4">
+                        <input type="text" id="itemSearchInput" class="w-full p-3 border border-gray-300 rounded-md" placeholder="वस्तु का नाम खोजें...">
+                    </div>
+                    
+                    <div id="itemsList" class="space-y-3">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Mode -->
+            <div id="accountMode" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">बहीखाता</h2>
+                        <div class="flex items-center gap-3">
+                            <!-- Search Icon -->
+                            <button id="searchCustomerBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="खोजें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                            <!-- Sort Order Icon -->
+                            <div class="relative">
+                                <button id="sortCustomerBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="क्रम बदलें">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+                                    </svg>
+                                </button>
+                                <select id="customerSortOrder" class="hidden absolute right-0 mt-1 p-2 border border-gray-300 rounded-md text-sm bg-white shadow-lg z-10">
+                                    <option value="recent">नवीनतम पहले</option>
+                                    <option value="name">नाम के अनुसार</option>
+                                </select>
+                            </div>
+
+                            <!-- Add Customer Icon -->
+                            <button id="addCustomerBtn" class="p-2 rounded-md bg-green-500 hover:bg-green-600 text-white" title="ग्राहक जोड़ें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Input (Hidden by default) -->
+                    <div id="customerSearchContainer" class="hidden mb-4">
+                        <input type="text" id="customerSearchInput" class="w-full p-3 border border-gray-300 rounded-md" placeholder="ग्राहक का नाम खोजें...">
+                    </div>
+                    
+                    <div id="customersList" class="space-y-4">
+                        <!-- Customers will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculator Mode -->
+            <div id="calculatorMode" class="tab-content hidden">
+                <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+                    <div class="calculator">
+                        <div class="mb-4">
+                            <div id="calcSteps" class="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-md min-h-[60px]">
+                                <div class="text-sm text-blue-600 font-medium mb-1">गणना के चरण:</div>
+                                <div id="calcStepsContent" class="text-lg font-bold text-blue-800">0</div>
+                            </div>
+                            <input id="calcDisplay" type="text" class="w-full p-4 text-right text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" readonly>
+                        </div>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button class="calc-btn bg-red-500 hover:bg-red-600 text-white p-4 rounded-md text-xl font-semibold" onclick="clearCalculator()">C</button>
+                            <button class="calc-btn bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-md text-xl font-semibold" onclick="deleteLast()">⌫</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('/')">/</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('*')">×</button>
+                            
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('7')">7</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('8')">8</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('9')">9</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('-')">-</button>
+                            
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
+                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('+')">+</button>
+                            
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
+                            <button class="calc-btn bg-green-500 hover:bg-green-600 text-white p-4 rounded-md text-xl font-semibold row-span-2" onclick="calculate()">=</button>
+                            
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
+                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-4 rounded-md text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
+                        </div>
+                        
+                        <div class="mt-4 flex gap-2">
+                            <button id="calcHistoryBtn" class="p-3 bg-gray-500 hover:bg-gray-600 text-white rounded-md" title="हिस्ट्री देखें" onclick="openCalcHistory()">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </button>
+                            <button id="addToBahikhataBtn" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-md font-semibold" onclick="openCalcToBahikhata()">
+                                📖 बहीखाता में जोड़ें
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+            <h3 id="itemModalTitle" class="text-lg font-semibold mb-4">नई वस्तु जोड़ें</h3>
+            <form id="addItemForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">वस्तु का नाम</label>
+                    <input type="text" id="itemName" class="w-full p-3 border border-gray-300 rounded-md" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">दर और प्रकार</label>
+                    <div id="priceVariants" class="space-y-3">
+                        <div class="flex gap-2 items-center price-variant">
+                            <input type="number" class="w-32 p-2 border border-gray-300 rounded-md variant-price" placeholder="दर (₹)" required>
+                            <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
+                                <option value="प्रति किलो">प्रति किलो</option>
+                                <option value="प्रति नग">प्रति नग</option>
+                                <option value="प्रति दर्जन">प्रति दर्जन</option>
+                                <option value="प्रति पैकेट">प्रति पैकेट</option>
+                                <option value="प्रति लीटर">प्रति लीटर</option>
+                                <option value="प्रति मीटर">प्रति मीटर</option>
+                                <option value="अन्य">अन्य</option>
+                            </select>
+                            <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type hidden" placeholder="कस्टम प्रकार">
+                            <button type="button" class="text-red-500 hover:text-red-700 remove-variant" onclick="removeVariant(this)">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" id="addVariant" class="mt-2 text-blue-500 hover:text-blue-700 text-sm">+ नया प्रकार जोड़ें</button>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">सेव करें</button>
+                    <button type="button" id="cancelAddItem" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                    <button type="button" id="deleteItem" class="hidden bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md" onclick="deleteItem()">हटाएं</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">नया ग्राहक जोड़ें</h3>
+            <form id="addCustomerForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक का नाम</label>
+                    <input type="text" id="customerName" class="w-full p-3 border border-gray-300 rounded-md" required>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">जोड़ें</button>
+                    <button type="button" id="cancelAddCustomer" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Multiple Transactions Modal -->
+    <div id="addTransactionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">सामान जोड़ें</h3>
+            <form id="addTransactionForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">लेने वाले का नाम (वैकल्पिक)</label>
+                    <input type="text" id="buyerName" class="w-full p-3 border border-gray-300 rounded-md" placeholder="डिफ़ॉल्ट: खाता धारक का नाम">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">सामान की सूची</label>
+                    <div id="transactionItems" class="space-y-3">
+                        <!-- Transaction items will be added here -->
+                    </div>
+                </div>
+                
+                <div class="mb-4 p-3 bg-gray-50 rounded-md">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">कुल राशि:</span>
+                        <span id="totalAmount" class="text-lg font-bold text-green-600">₹0.00</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">जोड़ें</button>
+                    <button type="button" id="cancelAddTransaction" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Calculator to Bahikhata Modal -->
+    <div id="calcToBahikhataModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">बहीखाता में जोड़ें</h3>
+            <form id="calcToBahikhataForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक चुनें या नाम लिखें</label>
+                    <div class="relative">
+                        <input type="text" id="calcCustomerInput" class="w-full p-3 border border-gray-300 rounded-md" placeholder="ग्राहक का नाम लिखें या चुनें" required>
+                        <div id="calcCustomerDropdown" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto">
+                            <!-- Customer options will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">राशि</label>
+                    <input type="number" id="calcAmount" class="w-full p-3 border border-gray-300 rounded-md" step="0.01" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">सामान का विवरण</label>
+                    <textarea id="calcItemDescription" class="w-full p-3 border border-gray-300 rounded-md" rows="3" placeholder="सामान का विवरण लिखें..."></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">जोड़ें</button>
+                    <button type="button" id="cancelCalcToBahikhata" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send Notice Modal -->
+    <div id="sendNoticeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+            <h3 class="text-lg font-semibold mb-4">पेमेंट नोटिस</h3>
+            <div id="noticeContent" class="border border-gray-300 rounded-md p-4 mb-4 bg-gray-50">
+                <!-- Notice content will be generated here -->
+            </div>
+            <div class="flex gap-3">
+                <button id="printNotice" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">🖨️ प्रिंट करें</button>
+                <button id="saveNoticeImage" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">💾 इमेज सेव करें</button>
+                <button id="cancelNotice" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">वस्तु अपडेट करें</h3>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वस्तु का नाम</label>
-                    <input type="text" id="editItemName" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                </div>
-                
-                <div id="editVarietiesList">
-                    <!-- Varieties will be shown here for editing -->
-                </div>
-                
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="updateItem()" 
-                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        ✅ अपडेट
-                    </button>
-                    <button onclick="closeEditModal()" 
-                            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        ❌ रद्द
-                    </button>
-                </div>
+    <!-- Calculator History Modal -->
+    <div id="calcHistoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">कैलकुलेटर हिस्ट्री</h3>
+            <div id="calcHistoryContent" class="space-y-3 mb-4">
+                <!-- History items will be loaded here -->
             </div>
+            <div class="flex gap-3">
+                <button id="clearCalcHistory" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">हिस्ट्री साफ़ करें</button>
+                <button id="closeCalcHistory" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">बंद करें</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Shop Title Modal -->
+    <div id="editTitleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">दुकान का नाम बदलें</h3>
+            <form id="editTitleForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">नया नाम</label>
+                    <input type="text" id="newShopTitle" class="w-full p-3 border border-gray-300 rounded-md" required>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">सेव करें</button>
+                    <button type="button" id="cancelEditTitle" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        let items = JSON.parse(localStorage.getItem('shopItems')) || [];
-        let editingIndex = -1;
-        let filteredItems = [...items];
-        let longPressTimer;
-        let currentLongPressItem = null;
+        // Data Storage
+        let items = JSON.parse(localStorage.getItem('shopItems') || '[]');
+        let customers = JSON.parse(localStorage.getItem('shopCustomers') || '[]');
+        let calcHistory = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+        let currentCustomerId = null;
+        let editingItemIndex = null;
+        let shopTitle = localStorage.getItem('shopTitle') || 'दुकान मैनेजमेंट';
+        let filteredItems = [];
+        let filteredCustomers = [];
 
-        function saveToStorage() {
+        // Shop Title Management
+        function initShopTitle() {
+            document.getElementById('shopTitle').textContent = shopTitle;
+        }
+
+        function editShopTitle() {
+            document.getElementById('newShopTitle').value = shopTitle;
+            document.getElementById('editTitleModal').classList.remove('hidden');
+        }
+
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('shopTheme') || 'light';
+            document.getElementById('themeSelect').value = savedTheme;
+            applyTheme(savedTheme);
+        }
+
+        function applyTheme(theme) {
+            const body = document.body;
+            body.classList.remove('dark');
+            
+            if (theme === 'dark') {
+                body.classList.add('dark');
+            } else if (theme === 'auto') {
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    body.classList.add('dark');
+                }
+            }
+            
+            localStorage.setItem('shopTheme', theme);
+        }
+
+        // Tab Management
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+
+                    // Add active class to clicked tab
+                    tab.classList.remove('border-transparent', 'text-gray-500');
+                    tab.classList.add('border-blue-500', 'text-blue-600');
+
+                    // Hide all content
+                    contents.forEach(content => content.classList.add('hidden'));
+
+                    // Show corresponding content
+                    const targetId = tab.id.replace('Tab', 'Mode');
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+        }
+
+        // Items Management
+        function saveItems() {
             localStorage.setItem('shopItems', JSON.stringify(items));
         }
 
-        function toggleMenu() {
-            const menu = document.getElementById('menuDropdown');
-            menu.classList.toggle('hidden');
+        function saveCustomers() {
+            localStorage.setItem('shopCustomers', JSON.stringify(customers));
         }
 
-        function showAlphabetScroll() {
-            const alphabetScroll = document.getElementById('alphabetScroll');
-            alphabetScroll.classList.add('show');
-            generateAlphabet();
-        }
-
-        function hideAlphabetScroll() {
-            setTimeout(() => {
-                const alphabetScroll = document.getElementById('alphabetScroll');
-                alphabetScroll.classList.remove('show');
-            }, 2000);
-        }
-
-        function openAddModal() {
-            document.getElementById('addModal').classList.remove('hidden');
-            document.getElementById('addModal').classList.add('flex');
-            document.getElementById('menuDropdown').classList.add('hidden');
-        }
-
-        function closeAddModal() {
-            document.getElementById('addModal').classList.add('hidden');
-            document.getElementById('addModal').classList.remove('flex');
-            clearForm();
-        }
-
-        function addRateInput() {
-            const rateInputs = document.getElementById('rateInputs');
-            const newRateInput = document.createElement('div');
-            newRateInput.className = 'rate-input-group mt-3';
-            newRateInput.innerHTML = `
-                <div class="flex space-x-2">
-                    <div class="flex-1">
-                        <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="रेट">
-                    </div>
-                    <div class="flex-1">
-                        <select class="unit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                            <option value="प्रति किलो">प्रति किलो</option>
-                            <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
-                            <option value="प्रति नग">प्रति नग</option>
-                            <option value="प्रति लीटर">प्रति लीटर</option>
-                            <option value="प्रति पैकेट">प्रति पैकेट</option>
-                            <option value="प्रति दर्जन">प्रति दर्जन</option>
-                        </select>
-                    </div>
-                    <button type="button" onclick="removeRateInput(this)" class="px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded">
-                        ❌
-                    </button>
-                </div>
-            `;
-            rateInputs.appendChild(newRateInput);
-        }
-
-        function removeRateInput(button) {
-            button.closest('.rate-input-group').remove();
-        }
-
-        function addItem() {
-            const name = document.getElementById('itemName').value.trim();
-            const varietyName = document.getElementById('varietyName').value.trim();
-            const rateInputs = document.querySelectorAll('.rate-input');
-            const unitInputs = document.querySelectorAll('.unit-input');
-
-            if (!name) {
-                alert('कृपया वस्तु का नाम भरें!');
-                return;
-            }
-
-            const rates = [];
-            for (let i = 0; i < rateInputs.length; i++) {
-                const rate = rateInputs[i].value.trim();
-                const unit = unitInputs[i].value;
-                if (rate) {
-                    rates.push({
-                        rate: parseFloat(rate),
-                        unit: unit
-                    });
-                }
-            }
-
-            if (rates.length === 0) {
-                alert('कम से कम एक रेट भरें!');
-                return;
-            }
-
-            // Check if item already exists
-            const existingItemIndex = items.findIndex(item => item.name.toLowerCase() === name.toLowerCase());
-            
-            if (existingItemIndex !== -1) {
-                // Add variety to existing item
-                const variety = {
-                    name: varietyName || 'सामान्य',
-                    rates: rates,
-                    timestamp: new Date().toLocaleString('hi-IN')
-                };
-                items[existingItemIndex].varieties.push(variety);
-            } else {
-                // Create new item
-                const newItem = {
-                    name: name,
-                    varieties: [{
-                        name: varietyName || 'सामान्य',
-                        rates: rates,
-                        timestamp: new Date().toLocaleString('hi-IN')
-                    }],
-                    timestamp: new Date().toLocaleString('hi-IN')
-                };
-                items.push(newItem);
-            }
-
-            items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
-            saveToStorage();
-            filteredItems = [...items];
-            displayItems();
-            closeAddModal();
-        }
-
-        function clearForm() {
-            document.getElementById('itemName').value = '';
-            document.getElementById('varietyName').value = '';
-            const rateInputs = document.getElementById('rateInputs');
-            rateInputs.innerHTML = `
-                <div class="rate-input-group">
-                    <div class="flex space-x-2">
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">रेट/भाव</label>
-                            <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="50">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">यूनिट</label>
-                            <select class="unit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                <option value="प्रति किलो">प्रति किलो</option>
-                                <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
-                                <option value="प्रति नग">प्रति नग</option>
-                                <option value="प्रति लीटर">प्रति लीटर</option>
-                                <option value="प्रति पैकेट">प्रति पैकेट</option>
-                                <option value="प्रति दर्जन">प्रति दर्जन</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function searchItems() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            
-            if (searchTerm === '') {
-                filteredItems = [...items];
-            } else {
-                filteredItems = items.filter(item => 
-                    item.name.toLowerCase().includes(searchTerm) ||
-                    item.varieties.some(variety => variety.name.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            displayItems();
-        }
-
-        function displayItems() {
+        function renderItems() {
             const itemsList = document.getElementById('itemsList');
-            const emptyState = document.getElementById('emptyState');
-            const noResults = document.getElementById('noResults');
-            const itemCount = document.getElementById('itemCount');
+            itemsList.innerHTML = '';
 
-            itemCount.textContent = items.length;
+            // Use filtered items if search is active, otherwise use all items
+            const itemsToShow = filteredItems.length > 0 || document.getElementById('itemSearchInput')?.value ? filteredItems : items;
 
-            if (items.length === 0) {
-                itemsList.innerHTML = '';
-                emptyState.style.display = 'block';
-                noResults.style.display = 'none';
+            if (itemsToShow.length === 0) {
+                const searchValue = document.getElementById('itemSearchInput')?.value;
+                if (searchValue) {
+                    itemsList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई वस्तु नहीं मिली। खोज बदलकर देखें।</p>';
+                } else {
+                    itemsList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई वस्तु नहीं मिली। नई वस्तु जोड़ने के लिए + बटन दबाएं।</p>';
+                }
                 return;
             }
 
-            if (filteredItems.length === 0) {
-                itemsList.innerHTML = '';
-                emptyState.style.display = 'none';
-                noResults.style.display = 'block';
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            noResults.style.display = 'none';
+            // Sort items based on selected order
+            const sortOrder = document.getElementById('itemSortOrder')?.value || 'name';
+            let sortedItems = [...itemsToShow];
             
-            itemsList.innerHTML = filteredItems.map((item, index) => {
-                const originalIndex = items.findIndex(originalItem => originalItem.name === item.name);
+            if (sortOrder === 'name') {
+                sortedItems.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+            } else if (sortOrder === 'date') {
+                sortedItems.sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0));
+            }
+
+            sortedItems.forEach((item, originalIndex) => {
+                const actualIndex = items.findIndex(i => i === item);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'border border-gray-200 rounded-md p-4 hover:bg-gray-50';
                 
-                return `
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600 overflow-hidden transition-colors duration-300 item-card" 
-                     data-item-index="${originalIndex}"
-                     ontouchstart="startLongPress(event, ${originalIndex})" 
-                     ontouchend="endLongPress()" 
-                     onmousedown="startLongPress(event, ${originalIndex})" 
-                     onmouseup="endLongPress()"
-                     onmouseleave="endLongPress()">
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-lg mb-2">${item.name}</h3>
-                        <div class="space-y-2">
-                            ${item.varieties.map(variety => `
-                                <div class="variety-item">
-                                    ${variety.name !== 'सामान्य' ? `<div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">${variety.name}</div>` : ''}
-                                    <div class="flex flex-wrap gap-2">
-                                        ${variety.rates.map(rateInfo => `
-                                            <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-sm font-medium">
-                                                ₹${rateInfo.rate} ${rateInfo.unit}
-                                            </span>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `).join('')}
+                let variantsHtml = '';
+                if (item.variants && item.variants.length > 0) {
+                    variantsHtml = item.variants.map(variant => 
+                        `<div class="text-sm mb-1">
+                            <div class="text-left">
+                                <span class="font-bold text-lg text-green-700">₹${Math.round(variant.price)}</span>
+                                <span class="text-gray-600 ml-2">${variant.type}</span>
+                            </div>
+                        </div>`
+                    ).join('');
+                } else {
+                    // Legacy support for old format
+                    variantsHtml = `<div class="text-sm mb-1">
+                        <div class="text-left">
+                            <span class="font-bold text-lg text-green-700">₹${Math.round(item.price || 0)}</span>
+                            <span class="text-gray-600 ml-2">${item.type || 'सामान्य'}</span>
+                        </div>
+                    </div>`;
+                }
+                
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-semibold text-gray-900 text-lg">${item.name}</h3>
+                        <div class="flex gap-2">
+                            <button onclick="editItem(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="confirmDeleteItem(${actualIndex})" class="text-red-500 hover:text-red-700 p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                </div>
-            `;
-            }).join('');
-        }
-
-        function startLongPress(event, itemIndex) {
-            event.preventDefault();
-            currentLongPressItem = itemIndex;
-            longPressTimer = setTimeout(() => {
-                showLongPressMenu(event, itemIndex);
-            }, 500);
-        }
-
-        function endLongPress() {
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-        }
-
-        function showLongPressMenu(event, itemIndex) {
-            const menu = document.getElementById('longPressMenu');
-            const rect = event.target.closest('.item-card').getBoundingClientRect();
-            
-            menu.style.left = `${rect.left + 10}px`;
-            menu.style.top = `${rect.top + 10}px`;
-            menu.classList.remove('hidden');
-            menu.classList.add('show');
-            
-            currentLongPressItem = itemIndex;
-        }
-
-        function hideLongPressMenu() {
-            const menu = document.getElementById('longPressMenu');
-            menu.classList.remove('show');
-            setTimeout(() => {
-                menu.classList.add('hidden');
-            }, 200);
-        }
-
-        function editItemFromMenu() {
-            if (currentLongPressItem !== null) {
-                editItem(currentLongPressItem);
-            }
-            hideLongPressMenu();
-        }
-
-        function addVarietyFromMenu() {
-            if (currentLongPressItem !== null) {
-                document.getElementById('itemName').value = items[currentLongPressItem].name;
-                openAddModal();
-            }
-            hideLongPressMenu();
-        }
-
-        function deleteItemFromMenu() {
-            if (currentLongPressItem !== null) {
-                deleteItem(currentLongPressItem);
-            }
-            hideLongPressMenu();
-        }
-
-        function generateAlphabet() {
-            const alphabetScroll = document.getElementById('alphabetScroll');
-            const hindiAlphabet = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ', 'क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ट', 'ठ', 'ड', 'ढ', 'त', 'थ', 'द', 'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह'];
-            const englishAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-            
-            const availableLetters = new Set();
-            items.forEach(item => {
-                const firstChar = item.name.charAt(0).toUpperCase();
-                availableLetters.add(firstChar);
-            });
-
-            const allLetters = [...hindiAlphabet, ...englishAlphabet];
-            
-            alphabetScroll.innerHTML = allLetters.map(letter => {
-                const isAvailable = availableLetters.has(letter);
-                return `
-                    <button ontouchstart="showLetterOverlay('${letter}')" ontouchend="hideLetterOverlay()" onclick="scrollToLetter('${letter}')" 
-                            class="w-6 h-6 text-xs font-medium rounded transition duration-200 ${
-                                isAvailable 
-                                    ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900' 
-                                    : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                            }"
-                            ${!isAvailable ? 'disabled' : ''}>
-                        ${letter}
-                    </button>
+                    <div class="space-y-1">
+                        ${variantsHtml}
+                    </div>
                 `;
-            }).join('');
-        }
-
-        function showLetterOverlay(letter) {
-            const overlay = document.getElementById('alphabetOverlay');
-            const currentLetter = document.getElementById('currentLetter');
-            currentLetter.textContent = letter;
-            overlay.classList.add('show');
-        }
-
-        function hideLetterOverlay() {
-            setTimeout(() => {
-                const overlay = document.getElementById('alphabetOverlay');
-                overlay.classList.remove('show');
-            }, 100);
-        }
-
-        function scrollToLetter(letter) {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.value = letter;
-            searchItems();
+                itemsList.appendChild(itemDiv);
+            });
         }
 
         function editItem(index) {
-            editingIndex = index;
+            editingItemIndex = index;
             const item = items[index];
             
-            document.getElementById('editItemName').value = item.name;
+            document.getElementById('itemModalTitle').textContent = 'वस्तु संपादित करें';
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('deleteItem').classList.remove('hidden');
             
-            const editVarietiesList = document.getElementById('editVarietiesList');
-            editVarietiesList.innerHTML = item.varieties.map((variety, vIndex) => `
-                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-3">
-                    <div class="mb-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वैरायटी का नाम</label>
-                        <input type="text" value="${variety.name}" class="variety-name-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                    </div>
-                    <div class="variety-rates" data-variety-index="${vIndex}">
-                        ${variety.rates.map((rateInfo, rIndex) => `
-                            <div class="flex space-x-2 mb-2">
-                                <div class="flex-1">
-                                    <input type="number" value="${rateInfo.rate}" class="rate-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                </div>
-                                <div class="flex-1">
-                                    <select class="unit-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                        <option value="प्रति किलो" ${rateInfo.unit === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
-                                        <option value="प्रति 100 ग्राम" ${rateInfo.unit === 'प्रति 100 ग्राम' ? 'selected' : ''}>प्रति 100 ग्राम</option>
-                                        <option value="प्रति नग" ${rateInfo.unit === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
-                                        <option value="प्रति लीटर" ${rateInfo.unit === 'प्रति लीटर' ? 'selected' : ''}>प्रति लीटर</option>
-                                        <option value="प्रति पैकेट" ${rateInfo.unit === 'प्रति पैकेट' ? 'selected' : ''}>प्रति पैकेट</option>
-                                        <option value="प्रति दर्जन" ${rateInfo.unit === 'प्रति दर्जन' ? 'selected' : ''}>प्रति दर्जन</option>
-                                    </select>
-                                </div>
-                                ${variety.rates.length > 1 ? `<button type="button" onclick="removeEditRate(this)" class="px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded">❌</button>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <button type="button" onclick="addEditRate(${vIndex})" class="text-blue-600 dark:text-blue-400 text-sm hover:underline">+ रेट जोड़ें</button>
-                </div>
-            `).join('');
+            // Clear existing variants
+            const variantsContainer = document.getElementById('priceVariants');
+            variantsContainer.innerHTML = '';
             
-            document.getElementById('editModal').classList.remove('hidden');
-            document.getElementById('editModal').classList.add('flex');
+            if (item.variants && item.variants.length > 0) {
+                item.variants.forEach(variant => {
+                    addVariantRow(variant.type, variant.price);
+                });
+            } else {
+                // Legacy support
+                addVariantRow(item.type || 'प्रति किलो', item.price);
+            }
+            
+            document.getElementById('addItemModal').classList.remove('hidden');
         }
 
-        function addEditRate(varietyIndex) {
-            const varietyRates = document.querySelector(`[data-variety-index="${varietyIndex}"]`);
-            const newRateDiv = document.createElement('div');
-            newRateDiv.className = 'flex space-x-2 mb-2';
-            newRateDiv.innerHTML = `
-                <div class="flex-1">
-                    <input type="number" class="rate-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="रेट">
-                </div>
-                <div class="flex-1">
-                    <select class="unit-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                        <option value="प्रति किलो">प्रति किलो</option>
-                        <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
-                        <option value="प्रति नग">प्रति नग</option>
-                        <option value="प्रति लीटर">प्रति लीटर</option>
-                        <option value="प्रति पैकेट">प्रति पैकेट</option>
-                        <option value="प्रति दर्जन">प्रति दर्जन</option>
-                    </select>
-                </div>
-                <button type="button" onclick="removeEditRate(this)" class="px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded">❌</button>
+        function deleteItem() {
+            if (editingItemIndex !== null && confirm('क्या आप इस वस्तु को हटाना चाहते हैं?')) {
+                items.splice(editingItemIndex, 1);
+                saveItems();
+                renderItems();
+                document.getElementById('addItemModal').classList.add('hidden');
+                resetItemForm();
+            }
+        }
+
+        function resetItemForm() {
+            editingItemIndex = null;
+            document.getElementById('itemModalTitle').textContent = 'नई वस्तु जोड़ें';
+            document.getElementById('deleteItem').classList.add('hidden');
+            document.getElementById('addItemForm').reset();
+            
+            // Reset to single variant
+            const variantsContainer = document.getElementById('priceVariants');
+            variantsContainer.innerHTML = '';
+            addVariantRow();
+        }
+
+        function addVariantRow(type = 'प्रति किलो', price = '') {
+            const variantsContainer = document.getElementById('priceVariants');
+            const variantDiv = document.createElement('div');
+            variantDiv.className = 'flex gap-2 items-center price-variant';
+            variantDiv.innerHTML = `
+                <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
+                    <option value="प्रति किलो" ${type === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
+                    <option value="प्रति नग" ${type === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
+                    <option value="प्रति दर्जन" ${type === 'प्रति दर्जन' ? 'selected' : ''}>प्रति दर्जन</option>
+                    <option value="प्रति पैकेट" ${type === 'प्रति पैकेट' ? 'selected' : ''}>प्रति पैकेट</option>
+                    <option value="प्रति लीटर" ${type === 'प्रति लीटर' ? 'selected' : ''}>प्रति लीटर</option>
+                    <option value="प्रति मीटर" ${type === 'प्रति मीटर' ? 'selected' : ''}>प्रति मीटर</option>
+                    <option value="अन्य" ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? 'selected' : ''}>अन्य</option>
+                </select>
+                <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? '' : 'hidden'}" placeholder="कस्टम प्रकार" value="${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? type : ''}">
+                <input type="number" class="w-24 p-2 border border-gray-300 rounded-md variant-price" step="0.01" placeholder="दर" value="${price}" required>
+                <button type="button" class="text-red-500 hover:text-red-700 remove-variant" onclick="removeVariant(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             `;
-            varietyRates.appendChild(newRateDiv);
-        }
-
-        function removeEditRate(button) {
-            button.closest('.flex').remove();
-        }
-
-        function updateItem() {
-            const name = document.getElementById('editItemName').value.trim();
+            variantsContainer.appendChild(variantDiv);
             
-            if (!name) {
-                alert('कृपया वस्तु का नाम भरें!');
+            // Add event listener for variant type change
+            const select = variantDiv.querySelector('.variant-type');
+            const customInput = variantDiv.querySelector('.custom-type');
+            select.addEventListener('change', function() {
+                if (this.value === 'अन्य') {
+                    customInput.classList.remove('hidden');
+                    customInput.required = true;
+                } else {
+                    customInput.classList.add('hidden');
+                    customInput.required = false;
+                    customInput.value = '';
+                }
+            });
+        }
+
+        function removeVariant(button) {
+            const variants = document.querySelectorAll('.price-variant');
+            if (variants.length > 1) {
+                button.closest('.price-variant').remove();
+            }
+        }
+
+        function renderCustomers() {
+            const customersList = document.getElementById('customersList');
+            customersList.innerHTML = '';
+
+            // Use filtered customers if search is active, otherwise use all customers
+            const customersToShow = filteredCustomers.length > 0 || document.getElementById('customerSearchInput')?.value ? filteredCustomers : customers;
+
+            if (customersToShow.length === 0) {
+                const searchValue = document.getElementById('customerSearchInput')?.value;
+                if (searchValue) {
+                    customersList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई ग्राहक नहीं मिला। खोज बदलकर देखें।</p>';
+                } else {
+                    customersList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई ग्राहक नहीं मिला। नया ग्राहक जोड़ने के लिए + बटन दबाएं।</p>';
+                }
                 return;
             }
 
-            const varietyNameInputs = document.querySelectorAll('.variety-name-input');
-            const varieties = [];
+            // Sort customers based on selected order
+            const sortOrder = document.getElementById('customerSortOrder')?.value || 'recent';
+            let sortedCustomers = [...customersToShow];
+            
+            if (sortOrder === 'name') {
+                sortedCustomers.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+            } else if (sortOrder === 'recent') {
+                sortedCustomers.sort((a, b) => {
+                    const aLastUpdate = a.lastUpdated || a.dateAdded || 0;
+                    const bLastUpdate = b.lastUpdated || b.dateAdded || 0;
+                    return new Date(bLastUpdate) - new Date(aLastUpdate);
+                });
+            }
 
-            varietyNameInputs.forEach((nameInput, vIndex) => {
-                const varietyDiv = document.querySelector(`[data-variety-index="${vIndex}"]`);
-                const rateInputs = varietyDiv.querySelectorAll('.rate-edit-input');
-                const unitInputs = varietyDiv.querySelectorAll('.unit-edit-input');
+            sortedCustomers.forEach((customer) => {
+                const actualIndex = customers.findIndex(c => c === customer);
+                const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                const customerDiv = document.createElement('div');
+                customerDiv.className = 'border border-gray-200 rounded-md p-4 cursor-pointer hover:bg-gray-50';
                 
-                const rates = [];
-                rateInputs.forEach((rateInput, rIndex) => {
-                    const rate = rateInput.value.trim();
-                    if (rate) {
-                        rates.push({
-                            rate: parseFloat(rate),
-                            unit: unitInputs[rIndex].value
-                        });
+                customerDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-3" onclick="toggleCustomerDetails(${actualIndex})">
+                        <div>
+                            <h3 class="font-semibold text-gray-900 text-lg">${customer.name}</h3>
+                            <p class="text-lg font-bold text-red-600 text-left">₹${Math.round(total)}</p>
+                        </div>
+                        <div class="flex gap-2" onclick="event.stopPropagation()">
+                            <button onclick="addTransaction(${actualIndex})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                + जोड़ें
+                            </button>
+                            <button onclick="sendNotice(${actualIndex})" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm" title="नोटिस भेजें">
+                                📤
+                            </button>
+                            <div class="relative">
+                                <button onclick="toggleCustomerMenu(${actualIndex})" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm customer-menu-btn">
+                                    ⋮
+                                </button>
+                                <div id="customerMenu${actualIndex}" class="hidden absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                    <button onclick="printCustomer(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        प्रिंट
+                                    </button>
+                                    <button onclick="deleteCustomer(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        हटाएं
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="customerDetails${actualIndex}" class="hidden space-y-2 border-t border-gray-200 pt-3">
+                        ${customer.transactions.map((t, tIndex) => {
+                            let itemsDisplay = '';
+                            if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
+                                itemsDisplay = t.itemsWithAmounts.map(item => `${item.name} (₹${Math.round(item.amount)})`).join(', ');
+                            } else if (Array.isArray(t.items)) {
+                                itemsDisplay = t.items.join(', ');
+                            } else {
+                                itemsDisplay = t.item || '';
+                            }
+                            
+                            return `
+                            <div class="text-sm bg-gray-50 p-3 rounded">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="text-left">
+                                        <span class="font-bold text-green-600">₹${Math.round(t.amount)}</span>
+                                        <span class="font-medium ml-2">${itemsDisplay}</span>
+                                        ${t.buyer && t.buyer !== customer.name ? `<span class="text-gray-600 text-sm ml-2">(${t.buyer})</span>` : ''}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-500">${new Date(t.date).toLocaleString('hi-IN')}</span>
+                                        <button onclick="deleteTransaction(${actualIndex}, ${tIndex})" class="text-red-500 hover:text-red-700">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        }).join('')}
+                    </div>
+                `;
+                customersList.appendChild(customerDiv);
+            });
+        }
+
+        function toggleCustomerMenu(index) {
+            const menu = document.getElementById(`customerMenu${index}`);
+            // Close all other menus
+            document.querySelectorAll('[id^="customerMenu"]').forEach(m => {
+                if (m.id !== `customerMenu${index}`) {
+                    m.classList.add('hidden');
+                }
+            });
+            menu.classList.toggle('hidden');
+        }
+
+        function deleteCustomer(index) {
+            if (confirm('क्या आप इस ग्राहक को हटाना चाहते हैं?')) {
+                customers.splice(index, 1);
+                saveCustomers();
+                renderCustomers();
+            }
+        }
+
+        function deleteTransaction(customerIndex, transactionIndex) {
+            if (confirm('क्या आप इस लेन-देन को हटाना चाहते हैं?')) {
+                customers[customerIndex].transactions.splice(transactionIndex, 1);
+                saveCustomers();
+                renderCustomers();
+            }
+        }
+
+        function addTransaction(customerIndex) {
+            currentCustomerId = customerIndex;
+            const customer = customers[customerIndex];
+            document.getElementById('buyerName').placeholder = `डिफ़ॉल्ट: ${customer.name}`;
+            
+            // Reset form
+            document.getElementById('transactionItems').innerHTML = '';
+            addTransactionItem();
+            updateTotalAmount();
+            
+            document.getElementById('addTransactionModal').classList.remove('hidden');
+        }
+
+        function addTransactionItem() {
+            const container = document.getElementById('transactionItems');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'transaction-item border border-gray-200 rounded-md p-3';
+            itemDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <input type="number" class="w-full p-2 border border-gray-300 rounded-md item-amount" step="0.01" placeholder="राशि (₹)" required>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md item-name" placeholder="सामान का नाम" required>
+                        <button type="button" class="text-red-500 hover:text-red-700 remove-transaction-item" onclick="removeTransactionItem(this)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="item-list space-y-2">
+                    <!-- Additional items will be added here -->
+                </div>
+            `;
+            container.appendChild(itemDiv);
+            
+            // Add event listeners
+            const amountInput = itemDiv.querySelector('.item-amount');
+            const nameInput = itemDiv.querySelector('.item-name');
+            
+            amountInput.addEventListener('input', function() {
+                updateTotalAmount();
+            });
+            
+            nameInput.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    addItemToList(itemDiv);
+                }
+            });
+        }
+        
+        function addItemToList(parentDiv) {
+            const itemList = parentDiv.querySelector('.item-list');
+            const existingItems = itemList.querySelectorAll('.additional-item');
+            
+            // Check if last item is filled
+            if (existingItems.length === 0 || existingItems[existingItems.length - 1].querySelector('.additional-item-name').value.trim()) {
+                const newItemDiv = document.createElement('div');
+                newItemDiv.className = 'additional-item grid grid-cols-1 md:grid-cols-2 gap-3';
+                newItemDiv.innerHTML = `
+                    <div>
+                        <input type="number" class="w-full p-2 border border-gray-300 rounded-md additional-item-amount" step="0.01" placeholder="राशि (₹)">
+                    </div>
+                    <div>
+                        <input type="text" class="w-full p-2 border border-gray-300 rounded-md additional-item-name" placeholder="अगला सामान (वैकल्पिक)">
+                    </div>
+                `;
+                itemList.appendChild(newItemDiv);
+                
+                // Add event listeners
+                const nameInput = newItemDiv.querySelector('.additional-item-name');
+                const amountInput = newItemDiv.querySelector('.additional-item-amount');
+                
+                nameInput.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        addItemToList(parentDiv);
                     }
                 });
+                
+                amountInput.addEventListener('input', function() {
+                    updateTotalAmount();
+                });
+            }
+        }
 
-                if (rates.length > 0) {
-                    varieties.push({
-                        name: nameInput.value.trim() || 'सामान्य',
-                        rates: rates,
-                        timestamp: new Date().toLocaleString('hi-IN')
+        function removeTransactionItem(button) {
+            const items = document.querySelectorAll('.transaction-item');
+            if (items.length > 1) {
+                button.closest('.transaction-item').remove();
+                updateTotalAmount();
+            }
+        }
+
+        function updateTotalAmount() {
+            const mainAmounts = document.querySelectorAll('.item-amount');
+            const additionalAmounts = document.querySelectorAll('.additional-item-amount');
+            let total = 0;
+            
+            mainAmounts.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            
+            additionalAmounts.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
+        }
+
+        function printCustomer(index) {
+            const customer = customers[index];
+            const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>बहीखाता - ${customer.name}</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .customer-info { margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .total { font-weight: bold; font-size: 18px; margin-top: 20px; text-align: left; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle}</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    <div class="customer-info">
+                        <h2>ग्राहक: ${customer.name}</h2>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>राशि (₹)</th>
+                                <th>सामान</th>
+                                <th>दिनांक व समय</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${customer.transactions.map(t => {
+                                let itemsDisplay = '';
+                                if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
+                                    itemsDisplay = t.itemsWithAmounts.map(item => `${item.name}${item.amount > 0 ? ` (₹${Math.round(item.amount)})` : ''}`).join(', ');
+                                } else if (Array.isArray(t.items)) {
+                                    itemsDisplay = t.items.join(', ');
+                                } else {
+                                    itemsDisplay = t.item || '';
+                                }
+                                
+                                return `
+                                <tr>
+                                    <td style="text-align: left;">₹${Math.round(t.amount)}</td>
+                                    <td style="text-align: left;">${itemsDisplay}${t.buyer && t.buyer !== customer.name ? ` (${t.buyer})` : ''}</td>
+                                    <td>${new Date(t.date).toLocaleString('hi-IN')}</td>
+                                </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <div class="total" style="text-align: left;">
+                        कुल राशि: ₹${Math.round(total)}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Calculator Functions
+        let calcDisplay = '';
+        let calcSteps = [];
+
+        function appendToDisplay(value) {
+            const display = document.getElementById('calcDisplay');
+            calcDisplay += value;
+            display.value = calcDisplay;
+            updateCalcSteps();
+        }
+
+        function clearCalculator() {
+            calcDisplay = '';
+            calcSteps = [];
+            document.getElementById('calcDisplay').value = '';
+            document.getElementById('calcStepsContent').textContent = '0';
+        }
+
+        function deleteLast() {
+            calcDisplay = calcDisplay.slice(0, -1);
+            document.getElementById('calcDisplay').value = calcDisplay;
+            updateCalcSteps();
+        }
+
+        function updateCalcSteps() {
+            const stepsContent = document.getElementById('calcStepsContent');
+            if (calcDisplay) {
+                try {
+                    // Try to evaluate intermediate results
+                    const parts = calcDisplay.split(/([+\-*/])/);
+                    let currentResult = 0;
+                    let operator = '+';
+                    let stepText = '';
+                    
+                    for (let i = 0; i < parts.length; i++) {
+                        const part = parts[i].trim();
+                        if (part && !isNaN(part)) {
+                            const num = parseFloat(part);
+                            if (operator === '+') currentResult += num;
+                            else if (operator === '-') currentResult -= num;
+                            else if (operator === '*') currentResult *= num;
+                            else if (operator === '/') currentResult /= num;
+                            
+                            stepText += (stepText ? ` ${operator} ` : '') + Math.round(num);
+                        } else if (['+', '-', '*', '/'].includes(part)) {
+                            operator = part;
+                        }
+                    }
+                    
+                    if (stepText) {
+                        stepsContent.textContent = `${stepText} = ${Math.round(currentResult)}`;
+                    } else {
+                        stepsContent.textContent = calcDisplay;
+                    }
+                } catch (e) {
+                    stepsContent.textContent = calcDisplay || '0';
+                }
+            } else {
+                stepsContent.textContent = '0';
+            }
+        }
+
+        function calculate() {
+            try {
+                const result = eval(calcDisplay.replace('×', '*'));
+                calcDisplay = Math.round(result).toString();
+                document.getElementById('calcDisplay').value = calcDisplay;
+                document.getElementById('calcStepsContent').textContent = Math.round(result);
+            } catch (error) {
+                alert('गलत गणना');
+                clearCalculator();
+            }
+        }
+
+        function openCalcToBahikhata() {
+            const amount = parseFloat(calcDisplay);
+            if (!amount || amount <= 0) {
+                alert('पहले कोई राशि calculate करें');
+                return;
+            }
+            
+            // Update customer dropdown
+            const dropdown = document.getElementById('calcCustomerDropdown');
+            dropdown.innerHTML = '';
+            customers.forEach((customer, index) => {
+                const option = document.createElement('div');
+                option.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
+                option.textContent = customer.name;
+                option.onclick = () => selectCustomer(customer.name, index);
+                dropdown.appendChild(option);
+            });
+            
+            document.getElementById('calcCustomerInput').value = '';
+            document.getElementById('calcAmount').value = Math.round(amount);
+            document.getElementById('calcToBahikhataModal').classList.remove('hidden');
+        }
+
+        function openCalcHistory() {
+            renderCalcHistory();
+            document.getElementById('calcHistoryModal').classList.remove('hidden');
+        }
+
+        function renderCalcHistory() {
+            const historyContent = document.getElementById('calcHistoryContent');
+            historyContent.innerHTML = '';
+
+            if (calcHistory.length === 0) {
+                historyContent.innerHTML = '<p class="text-gray-500 text-center py-4">कोई हिस्ट्री नहीं मिली</p>';
+                return;
+            }
+
+            calcHistory.slice().reverse().forEach((entry, index) => {
+                const historyDiv = document.createElement('div');
+                historyDiv.className = 'border border-gray-200 rounded-md p-3 bg-gray-50';
+                historyDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="font-semibold text-green-600">₹${entry.amount}</span>
+                            <span class="text-sm text-gray-600 ml-2">${new Date(entry.date).toLocaleString('hi-IN')}</span>
+                        </div>
+                    </div>
+                    <div class="text-sm">
+                        <div><strong>ग्राहक:</strong> ${entry.customerName}</div>
+                        <div><strong>विवरण:</strong> ${entry.description}</div>
+                    </div>
+                `;
+                historyContent.appendChild(historyDiv);
+            });
+        }
+
+        function saveCalcHistory() {
+            localStorage.setItem('calcHistory', JSON.stringify(calcHistory));
+        }
+
+        function clearCalcHistory() {
+            if (confirm('क्या आप सभी हिस्ट्री साफ़ करना चाहते हैं?')) {
+                calcHistory = [];
+                saveCalcHistory();
+                renderCalcHistory();
+            }
+        }
+
+        function selectCustomer(name, index) {
+            document.getElementById('calcCustomerInput').value = name;
+            document.getElementById('calcCustomerInput').dataset.customerIndex = index;
+            document.getElementById('calcCustomerDropdown').classList.add('hidden');
+        }
+
+        function toggleCustomerDetails(index) {
+            const details = document.getElementById(`customerDetails${index}`);
+            const isHidden = details.classList.contains('hidden');
+            
+            // Close all other customer details
+            document.querySelectorAll('[id^="customerDetails"]').forEach(d => {
+                if (d.id !== `customerDetails${index}`) {
+                    d.classList.add('hidden');
+                }
+            });
+            
+            // Toggle current customer details
+            details.classList.toggle('hidden');
+            
+            // Show/hide menu buttons based on dropdown state
+            const menuBtn = document.querySelector(`button[onclick="toggleCustomerMenu(${index})"]`);
+            if (details.classList.contains('hidden')) {
+                // Dropdown is closed - hide menu button
+                menuBtn.style.display = 'none';
+            } else {
+                // Dropdown is open - show menu button
+                menuBtn.style.display = 'inline-block';
+            }
+        }
+
+        function confirmDeleteItem(index) {
+            if (confirm('क्या आप इस वस्तु को हटाना चाहते हैं?')) {
+                items.splice(index, 1);
+                saveItems();
+                renderItems();
+            }
+        }
+
+        function addVariantRow(type = 'प्रति किलो', price = '') {
+            const variantsContainer = document.getElementById('priceVariants');
+            const variantDiv = document.createElement('div');
+            variantDiv.className = 'flex gap-2 items-center price-variant';
+            variantDiv.innerHTML = `
+                <input type="number" class="w-32 p-2 border border-gray-300 rounded-md variant-price" placeholder="दर (₹)" value="${price}" required>
+                <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
+                    <option value="प्रति किलो" ${type === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
+                    <option value="प्रति नग" ${type === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
+                    <option value="प्रति दर्जन" ${type === 'प्रति दर्जन' ? 'selected' : ''}>प्रति दर्जन</option>
+                    <option value="प्रति पैकेट" ${type === 'प्रति पैकेट' ? 'selected' : ''}>प्रति पैकेट</option>
+                    <option value="प्रति लीटर" ${type === 'प्रति लीटर' ? 'selected' : ''}>प्रति लीटर</option>
+                    <option value="प्रति मीटर" ${type === 'प्रति मीटर' ? 'selected' : ''}>प्रति मीटर</option>
+                    <option value="अन्य" ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? 'selected' : ''}>अन्य</option>
+                </select>
+                <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? '' : 'hidden'}" placeholder="कस्टम प्रकार" value="${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? type : ''}">
+                <button type="button" class="text-red-500 hover:text-red-700 remove-variant" onclick="removeVariant(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            variantsContainer.appendChild(variantDiv);
+            
+            // Add event listener for variant type change
+            const select = variantDiv.querySelector('.variant-type');
+            const customInput = variantDiv.querySelector('.custom-type');
+            const priceInput = variantDiv.querySelector('.variant-price');
+            
+            select.addEventListener('change', function() {
+                if (this.value === 'अन्य') {
+                    customInput.classList.remove('hidden');
+                    customInput.required = true;
+                } else {
+                    customInput.classList.add('hidden');
+                    customInput.required = false;
+                    customInput.value = '';
+                }
+            });
+            
+            // Auto-add next variant when price is filled
+            priceInput.addEventListener('input', function() {
+                if (this.value && !variantDiv.nextElementSibling) {
+                    addVariantRow();
+                }
+            });
+        }
+
+        function sendNotice(customerIndex) {
+            const customer = customers[customerIndex];
+            const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            const noticeContent = document.getElementById('noticeContent');
+            noticeContent.innerHTML = `
+                <div class="text-center mb-4">
+                    <h2 class="text-xl font-bold">${shopTitle}</h2>
+                    <p class="text-sm text-gray-600">पेमेंट नोटिस</p>
+                    <p class="text-sm text-gray-600">दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                </div>
+                <div class="border-t border-b border-gray-300 py-4 my-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium">ग्राहक का नाम:</span>
+                        <span class="font-bold">${customer.name}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">कुल बकाया राशि:</span>
+                        <span class="font-bold text-red-600 text-xl">₹${Math.round(total)}</span>
+                    </div>
+                </div>
+                <div class="text-center text-sm text-gray-600">
+                    <p>कृपया जल्द से जल्द भुगतान करें।</p>
+                    <p>धन्यवाद!</p>
+                </div>
+            `;
+            
+            document.getElementById('sendNoticeModal').classList.remove('hidden');
+        }
+
+        // Menu Functions
+        function printAllItems() {
+            if (items.length === 0) {
+                alert('कोई वस्तु नहीं मिली');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            let itemsHtml = '';
+            let serialNo = 1;
+            
+            items.forEach(item => {
+                if (item.variants && item.variants.length > 0) {
+                    item.variants.forEach(variant => {
+                        itemsHtml += `
+                            <tr>
+                                <td>${serialNo++}</td>
+                                <td>${item.name}</td>
+                                <td>${variant.type}</td>
+                                <td>₹${variant.price}</td>
+                            </tr>
+                        `;
                     });
+                } else {
+                    // Legacy support
+                    itemsHtml += `
+                        <tr>
+                            <td>${serialNo++}</td>
+                            <td>${item.name}</td>
+                            <td>${item.type || 'सामान्य'}</td>
+                            <td>₹${item.price}</td>
+                        </tr>
+                    `;
                 }
             });
 
-            if (varieties.length === 0) {
-                alert('कम से कम एक वैरायटी और रेट भरें!');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>सभी वस्तुओं की सूची</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle} - वस्तुओं की दर सूची</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>क्रम</th>
+                                <th>वस्तु का नाम</th>
+                                <th>प्रकार</th>
+                                <th>दर (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function printBahikhata() {
+            if (customers.length === 0) {
+                alert('कोई ग्राहक नहीं मिला');
                 return;
             }
 
-            items[editingIndex] = {
-                ...items[editingIndex],
-                name: name,
-                varieties: varieties,
-                timestamp: new Date().toLocaleString('hi-IN')
-            };
-
-            items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
-            saveToStorage();
-            filteredItems = [...items];
-            displayItems();
-            closeEditModal();
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>बहीखाता सारांश</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .total { font-weight: bold; font-size: 18px; margin-top: 20px; text-align: left; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle} - बहीखाता सारांश</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>क्रम</th>
+                                <th>ग्राहक का नाम</th>
+                                <th>कुल राशि (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${customers.map((customer, index) => {
+                                const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                                return `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${customer.name}</td>
+                                        <td>₹${total.toFixed(2)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <div class="total">
+                        कुल उधारी: ₹${customers.reduce((sum, customer) => {
+                            return sum + customer.transactions.reduce((cSum, t) => cSum + t.amount, 0);
+                        }, 0).toFixed(2)}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            document.getElementById('editModal').classList.remove('flex');
-            editingIndex = -1;
-        }
-
-        function deleteItem(index) {
-            if (confirm('क्या आप वाकई इस वस्तु को हटाना चाहते हैं?')) {
-                items.splice(index, 1);
-                saveToStorage();
-                filteredItems = [...items];
-                displayItems();
+        function printDetailedBahikhata() {
+            if (customers.length === 0) {
+                alert('कोई ग्राहक नहीं मिला');
+                return;
             }
+
+            const printWindow = window.open('', '_blank');
+            let customersHtml = '';
+            let grandTotal = 0;
+
+            customers.forEach(customer => {
+                const customerTotal = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                grandTotal += customerTotal;
+
+                customersHtml += `
+                    <div class="customer-section">
+                        <h3>ग्राहक: ${customer.name}</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>राशि (₹)</th>
+                                    <th>सामान</th>
+                                    <th>दिनांक व समय</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${customer.transactions.map(t => {
+                                    let itemsDisplay = '';
+                                    if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
+                                        itemsDisplay = t.itemsWithAmounts.map(item => `${item.name}${item.amount > 0 ? ` (₹${Math.round(item.amount)})` : ''}`).join(', ');
+                                    } else if (Array.isArray(t.items)) {
+                                        itemsDisplay = t.items.join(', ');
+                                    } else {
+                                        itemsDisplay = t.item || '';
+                                    }
+                                    
+                                    return `
+                                    <tr>
+                                        <td style="text-align: left;">₹${Math.round(t.amount)}</td>
+                                        <td style="text-align: left;">${itemsDisplay}${t.buyer && t.buyer !== customer.name ? ` (${t.buyer})` : ''}</td>
+                                        <td>${new Date(t.date).toLocaleString('hi-IN')}</td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                        <div class="customer-total" style="text-align: left;">ग्राहक कुल: ₹${Math.round(customerTotal)}</div>
+                    </div>
+                `;
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>विस्तृत बहीखाता</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .customer-section { margin-bottom: 30px; page-break-inside: avoid; }
+                        .customer-section h3 { background-color: #f0f0f0; padding: 10px; margin: 0 0 10px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .customer-total { font-weight: bold; text-align: right; margin-bottom: 20px; }
+                        .grand-total { font-weight: bold; font-size: 18px; margin-top: 20px; text-align: center; background-color: #e0e0e0; padding: 15px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle} - विस्तृत बहीखाता</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    ${customersHtml}
+                    <div class="grand-total" style="text-align: left;">
+                        कुल उधारी: ₹${Math.round(grandTotal)}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
         }
 
-        function clearAllItems() {
-            if (confirm('क्या आप वाकई सभी वस्तुओं को हटाना चाहते हैं?')) {
-                items = [];
-                filteredItems = [];
-                saveToStorage();
-                displayItems();
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initShopTitle();
+            initTheme();
+            initTabs();
+            renderItems();
+            renderCustomers();
+
+            // Menu toggle
+            document.getElementById('menuBtn').addEventListener('click', function() {
+                const dropdown = document.getElementById('menuDropdown');
+                dropdown.classList.toggle('hidden');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const menu = document.getElementById('menuBtn');
+                const dropdown = document.getElementById('menuDropdown');
+                if (!menu.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+                
+                // Close customer menus
+                document.querySelectorAll('[id^="customerMenu"]').forEach(m => {
+                    if (!e.target.closest(`#${m.id}`) && !e.target.closest(`button[onclick*="toggleCustomerMenu"]`)) {
+                        m.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Theme selector
+            document.getElementById('themeSelect').addEventListener('change', function() {
+                applyTheme(this.value);
+            });
+
+            // Menu actions
+            document.getElementById('printAllItems').addEventListener('click', function() {
+                printAllItems();
                 document.getElementById('menuDropdown').classList.add('hidden');
-            }
-        }
-
-        // Close dropdowns and menus when clicking outside
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('menuDropdown');
-            const longPressMenu = document.getElementById('longPressMenu');
+            });
             
-            if (!e.target.closest('#menuDropdown') && !e.target.closest('button[onclick="toggleMenu()"]')) {
-                menu.classList.add('hidden');
-            }
+            document.getElementById('printBahikhata').addEventListener('click', function() {
+                printBahikhata();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
             
-            if (!e.target.closest('#longPressMenu')) {
-                hideLongPressMenu();
-            }
-        });
+            document.getElementById('printDetailedBahikhata').addEventListener('click', function() {
+                printDetailedBahikhata();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
+            
+            document.getElementById('editTitle').addEventListener('click', function() {
+                editShopTitle();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
 
-        // Close modals when clicking outside
-        document.getElementById('addModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAddModal();
-        });
+            // Edit title modal
+            document.getElementById('editTitleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newTitle = document.getElementById('newShopTitle').value.trim();
+                if (newTitle) {
+                    shopTitle = newTitle;
+                    localStorage.setItem('shopTitle', shopTitle);
+                    document.getElementById('shopTitle').textContent = shopTitle;
+                    document.getElementById('editTitleModal').classList.add('hidden');
+                }
+            });
 
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) closeEditModal();
-        });
+            document.getElementById('cancelEditTitle').addEventListener('click', function() {
+                document.getElementById('editTitleModal').classList.add('hidden');
+            });
 
-        // Initialize the app
-        items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
-        filteredItems = [...items];
-        displayItems();
+            // Add item modal
+            document.getElementById('addItemBtn').addEventListener('click', function() {
+                resetItemForm();
+                addVariantRow();
+                document.getElementById('addItemModal').classList.remove('hidden');
+            });
+
+            document.getElementById('cancelAddItem').addEventListener('click', function() {
+                document.getElementById('addItemModal').classList.add('hidden');
+                resetItemForm();
+            });
+
+            // Send Notice modal
+            document.getElementById('cancelNotice').addEventListener('click', function() {
+                document.getElementById('sendNoticeModal').classList.add('hidden');
+            });
+
+            document.getElementById('printNotice').addEventListener('click', function() {
+                const noticeContent = document.getElementById('noticeContent').innerHTML;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>पेमेंट नोटिस</title>
+                        <style>
+                            body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        </style>
+                    </head>
+                    <body>
+                        ${noticeContent}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            });
+
+            document.getElementById('saveNoticeImage').addEventListener('click', function() {
+                // Create a canvas to convert HTML to image
+                const noticeContent = document.getElementById('noticeContent');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size
+                canvas.width = 400;
+                canvas.height = 300;
+                
+                // Fill white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Add text content (simplified version)
+                ctx.fillStyle = 'black';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(shopTitle, canvas.width/2, 30);
+                ctx.font = '12px Arial';
+                ctx.fillText('पेमेंट नोटिस', canvas.width/2, 50);
+                ctx.fillText(`दिनांक: ${new Date().toLocaleDateString('hi-IN')}`, canvas.width/2, 70);
+                
+                // Convert to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'payment-notice.png';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            });
+
+            document.getElementById('addItemForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('itemName').value.trim();
+                
+                // Collect all variants
+                const variants = [];
+                const variantElements = document.querySelectorAll('.price-variant');
+                
+                variantElements.forEach(element => {
+                    const priceInput = element.querySelector('.variant-price');
+                    const typeSelect = element.querySelector('.variant-type');
+                    const customInput = element.querySelector('.custom-type');
+                    
+                    let type = typeSelect.value;
+                    if (type === 'अन्य' && customInput.value.trim()) {
+                        type = customInput.value.trim();
+                    }
+                    
+                    const price = Math.round(parseFloat(priceInput.value));
+                    
+                    if (type && price > 0) {
+                        variants.push({ type, price });
+                    }
+                });
+
+                if (variants.length === 0) {
+                    alert('कम से कम एक प्रकार और दर जोड़ें');
+                    return;
+                }
+
+                const itemData = { 
+                    name, 
+                    variants,
+                    dateAdded: editingItemIndex !== null ? items[editingItemIndex].dateAdded : new Date().toISOString()
+                };
+
+                if (editingItemIndex !== null) {
+                    items[editingItemIndex] = itemData;
+                } else {
+                    items.push(itemData);
+                }
+
+                saveItems();
+                renderItems();
+                document.getElementById('addItemModal').classList.add('hidden');
+                resetItemForm();
+            });
+
+            // Add variant button
+            document.getElementById('addVariant').addEventListener('click', function() {
+                addVariantRow();
+            });
+
+            // Add customer modal
+            document.getElementById('addCustomerBtn').addEventListener('click', function() {
+                document.getElementById('addCustomerModal').classList.remove('hidden');
+            });
+
+            document.getElementById('cancelAddCustomer').addEventListener('click', function() {
+                document.getElementById('addCustomerModal').classList.add('hidden');
+                document.getElementById('addCustomerForm').reset();
+            });
+
+            document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('customerName').value.trim();
+
+                if (name) {
+                    customers.push({ 
+                        name, 
+                        transactions: [],
+                        dateAdded: new Date().toISOString(),
+                        lastUpdated: new Date().toISOString()
+                    });
+                    saveCustomers();
+                    renderCustomers();
+                    document.getElementById('addCustomerModal').classList.add('hidden');
+                    this.reset();
+                }
+            });
+
+            // Add transaction modal
+            document.getElementById('cancelAddTransaction').addEventListener('click', function() {
+                document.getElementById('addTransactionModal').classList.add('hidden');
+            });
+
+            document.getElementById('addTransactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const buyerName = document.getElementById('buyerName').value.trim() || customers[currentCustomerId].name;
+                const transactionItems = document.querySelectorAll('.transaction-item');
+                
+                // Collect all items and amounts for a single transaction
+                const allItemsWithAmounts = [];
+                let totalTransactionAmount = 0;
+                
+                transactionItems.forEach(item => {
+                    const mainItemName = item.querySelector('.item-name').value.trim();
+                    const mainAmount = parseFloat(item.querySelector('.item-amount').value) || 0;
+                    
+                    if (mainItemName) {
+                        if (mainAmount > 0) {
+                            allItemsWithAmounts.push({ name: mainItemName, amount: mainAmount });
+                            totalTransactionAmount += mainAmount;
+                        } else {
+                            // If no amount specified, add item without amount
+                            allItemsWithAmounts.push({ name: mainItemName, amount: 0 });
+                        }
+                    }
+                    
+                    // Collect additional items
+                    const additionalItems = item.querySelectorAll('.additional-item');
+                    additionalItems.forEach(additionalItem => {
+                        const additionalName = additionalItem.querySelector('.additional-item-name').value.trim();
+                        const additionalAmount = parseFloat(additionalItem.querySelector('.additional-item-amount').value) || 0;
+                        
+                        if (additionalName) {
+                            allItemsWithAmounts.push({ name: additionalName, amount: additionalAmount });
+                            totalTransactionAmount += additionalAmount;
+                        }
+                    });
+                });
+                
+                if (allItemsWithAmounts.length > 0) {
+                    const transaction = {
+                        itemsWithAmounts: allItemsWithAmounts,
+                        items: allItemsWithAmounts.map(item => item.name), // For backward compatibility
+                        item: allItemsWithAmounts.map(item => item.name).join(', '), // For backward compatibility
+                        amount: Math.round(totalTransactionAmount),
+                        buyer: buyerName,
+                        date: new Date().toISOString()
+                    };
+                    
+                    customers[currentCustomerId].transactions.push(transaction);
+                    
+                    // Update customer's last updated time
+                    customers[currentCustomerId].lastUpdated = new Date().toISOString();
+                    
+                    saveCustomers();
+                    renderCustomers();
+                    document.getElementById('addTransactionModal').classList.add('hidden');
+                }
+            });
+
+            // Search functionality for items
+            document.getElementById('searchItemBtn').addEventListener('click', function() {
+                const container = document.getElementById('itemSearchContainer');
+                const input = document.getElementById('itemSearchInput');
+                container.classList.toggle('hidden');
+                if (!container.classList.contains('hidden')) {
+                    input.focus();
+                } else {
+                    input.value = '';
+                    filteredItems = [];
+                    renderItems();
+                }
+            });
+
+            document.getElementById('itemSearchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                if (searchTerm) {
+                    filteredItems = items.filter(item => 
+                        item.name.toLowerCase().includes(searchTerm) ||
+                        (item.variants && item.variants.some(v => v.type.toLowerCase().includes(searchTerm)))
+                    );
+                } else {
+                    filteredItems = [];
+                }
+                renderItems();
+            });
+
+            // Search functionality for customers
+            document.getElementById('searchCustomerBtn').addEventListener('click', function() {
+                const container = document.getElementById('customerSearchContainer');
+                const input = document.getElementById('customerSearchInput');
+                container.classList.toggle('hidden');
+                if (!container.classList.contains('hidden')) {
+                    input.focus();
+                } else {
+                    input.value = '';
+                    filteredCustomers = [];
+                    renderCustomers();
+                }
+            });
+
+            document.getElementById('customerSearchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                if (searchTerm) {
+                    filteredCustomers = customers.filter(customer => 
+                        customer.name.toLowerCase().includes(searchTerm)
+                    );
+                } else {
+                    filteredCustomers = [];
+                }
+                renderCustomers();
+            });
+
+            // Sort button functionality
+            document.getElementById('sortItemBtn').addEventListener('click', function() {
+                const select = document.getElementById('itemSortOrder');
+                select.classList.toggle('hidden');
+            });
+
+            document.getElementById('sortCustomerBtn').addEventListener('click', function() {
+                const select = document.getElementById('customerSortOrder');
+                select.classList.toggle('hidden');
+            });
+
+            // Calculator history modal
+            document.getElementById('closeCalcHistory').addEventListener('click', function() {
+                document.getElementById('calcHistoryModal').classList.add('hidden');
+            });
+
+            document.getElementById('clearCalcHistory').addEventListener('click', clearCalcHistory);
+
+            // Sort order change listeners
+            document.getElementById('itemSortOrder').addEventListener('change', function() {
+                this.classList.add('hidden');
+                renderItems();
+            });
+            
+            document.getElementById('customerSortOrder').addEventListener('change', function() {
+                this.classList.add('hidden');
+                renderCustomers();
+            });
+
+            // Calculator customer input
+            document.getElementById('calcCustomerInput').addEventListener('input', function() {
+                const dropdown = document.getElementById('calcCustomerDropdown');
+                const value = this.value.toLowerCase();
+                
+                if (value) {
+                    dropdown.classList.remove('hidden');
+                    const options = dropdown.querySelectorAll('div');
+                    options.forEach(option => {
+                        if (option.textContent.toLowerCase().includes(value)) {
+                            option.style.display = 'block';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                } else {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('calcCustomerInput').addEventListener('focus', function() {
+                if (customers.length > 0) {
+                    document.getElementById('calcCustomerDropdown').classList.remove('hidden');
+                }
+            });
+
+            // Calculator to Bahikhata modal
+            document.getElementById('cancelCalcToBahikhata').addEventListener('click', function() {
+                document.getElementById('calcToBahikhataModal').classList.add('hidden');
+            });
+
+            document.getElementById('calcToBahikhataForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const customerName = document.getElementById('calcCustomerInput').value.trim();
+                const amount = Math.round(parseFloat(document.getElementById('calcAmount').value));
+                const description = document.getElementById('calcItemDescription').value.trim() || 'कैलकुलेटर से जोड़ा गया';
+                
+                if (customerName && amount > 0) {
+                    // Find existing customer or create new one
+                    let customerIndex = customers.findIndex(c => c.name === customerName);
+                    
+                    if (customerIndex === -1) {
+                        // Create new customer
+                        customers.push({
+                            name: customerName,
+                            transactions: [],
+                            dateAdded: new Date().toISOString(),
+                            lastUpdated: new Date().toISOString()
+                        });
+                        customerIndex = customers.length - 1;
+                    } else {
+                        // Update existing customer's last updated time
+                        customers[customerIndex].lastUpdated = new Date().toISOString();
+                    }
+                    
+                    const transaction = {
+                        itemsWithAmounts: [{ name: description, amount: amount }],
+                        items: [description], // For backward compatibility
+                        item: description, // For backward compatibility
+                        amount: amount,
+                        buyer: customerName,
+                        date: new Date().toISOString()
+                    };
+                    
+                    customers[customerIndex].transactions.push(transaction);
+                    
+                    // Add to calculator history
+                    calcHistory.push({
+                        customerName: customerName,
+                        amount: amount,
+                        description: description,
+                        date: new Date().toISOString()
+                    });
+                    
+                    saveCustomers();
+                    saveCalcHistory();
+                    renderCustomers();
+                    
+                    document.getElementById('calcToBahikhataModal').classList.add('hidden');
+                    document.getElementById('calcItemDescription').value = '';
+                    document.getElementById('calcCustomerInput').value = '';
+                    
+                    alert('राशि सफलतापूर्वक बहीखाता में जोड़ दी गई!');
+                }
+            });
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c7f6c0c1f24722',t:'MTc1NDc0OTk1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9689851b7849e',t:'MTc1NDc2NTEwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
