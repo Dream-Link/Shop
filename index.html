@@ -1,0 +1,2382 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>दुकान रेट मैनेजर V3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        
+        .alphabet-overlay {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px 0 0 10px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .alphabet-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .alphabet-scroll {
+            position: fixed;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .alphabet-scroll.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .long-press-menu {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 100;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.2s ease;
+        }
+        
+        .long-press-menu.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .long-press-menu {
+                background: #374151;
+                color: white;
+            }
+        }
+        
+        .item-card {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        .variety-item {
+            border-left: 3px solid #3b82f6;
+            padding-left: 8px;
+            margin: 4px 0;
+        }
+
+        .calc-btn {
+            touch-action: manipulation;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        /* Theme styles */
+        .theme-blue { --theme-primary: #3b82f6; --theme-bg: #eff6ff; }
+        .theme-green { --theme-primary: #10b981; --theme-bg: #ecfdf5; }
+        .theme-purple { --theme-primary: #8b5cf6; --theme-bg: #f3e8ff; }
+        .theme-red { --theme-primary: #ef4444; --theme-bg: #fef2f2; }
+        .theme-orange { --theme-primary: #f97316; --theme-bg: #fff7ed; }
+        .theme-pink { --theme-primary: #ec4899; --theme-bg: #fdf2f8; }
+        .theme-yellow { --theme-primary: #eab308; --theme-bg: #fefce8; }
+        .theme-teal { --theme-primary: #14b8a6; --theme-bg: #f0fdfa; }
+
+        [class*="theme-"] {
+            background: var(--theme-bg) !important;
+        }
+
+        [class*="theme-"] .bg-blue-600,
+        [class*="theme-"] .bg-blue-500 {
+            background-color: var(--theme-primary) !important;
+        }
+
+        [class*="theme-"] .text-blue-600,
+        [class*="theme-"] .text-blue-500 {
+            color: var(--theme-primary) !important;
+        }
+
+        [class*="theme-"] .border-blue-500 {
+            border-color: var(--theme-primary) !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-300">
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <div class="container mx-auto px-4 py-4 max-w-md relative">
+        <!-- Header with Menu -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-4 flex justify-between items-center transition-colors duration-300">
+            <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <button onclick="toggleMenu()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <div id="menuDropdown" class="hidden absolute left-0 top-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-600 w-56 z-50">
+                        <button onclick="openBillModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>📄</span>
+                            <span>पर्ची बनाएं</span>
+                        </button>
+                        <button onclick="openCalculator()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>🧮</span>
+                            <span>कैलकुलेटर</span>
+                        </button>
+                        <button onclick="openBakayaModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>💰</span>
+                            <span>बकाया</span>
+                        </button>
+                        <hr class="border-gray-200 dark:border-gray-600">
+                        <button onclick="openBillHistory()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>📋</span>
+                            <span>पर्ची हिस्ट्री</span>
+                        </button>
+                        <button onclick="openBakayaHistory()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>💳</span>
+                            <span>बकाया हिस्ट्री</span>
+                        </button>
+                        <button onclick="printAllItems()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>🖨️</span>
+                            <span>सभी वस्तु प्रिंट</span>
+                        </button>
+                        <hr class="border-gray-200 dark:border-gray-600">
+                        <button onclick="editShopName()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>✏️</span>
+                            <span>दुकान नाम एडिट</span>
+                        </button>
+                        <div class="relative">
+                            <button onclick="toggleThemeMenu()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between text-gray-800 dark:text-white">
+                                <div class="flex items-center space-x-2">
+                                    <span>🎨</span>
+                                    <span>थीम</span>
+                                </div>
+                                <span>▶</span>
+                            </button>
+                            <div id="themeSubmenu" class="hidden absolute left-full top-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-600 w-40 ml-1">
+                                <button onclick="setTheme('auto')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔄 ऑटो</button>
+                                <button onclick="setTheme('light')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">☀️ लाइट</button>
+                                <button onclick="setTheme('dark')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🌙 डार्क</button>
+                                <button onclick="setTheme('blue')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔵 ब्लू</button>
+                                <button onclick="setTheme('green')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟢 ग्रीन</button>
+                                <button onclick="setTheme('purple')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟣 पर्पल</button>
+                                <button onclick="setTheme('red')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔴 रेड</button>
+                                <button onclick="setTheme('orange')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟠 ऑरेंज</button>
+                                <button onclick="setTheme('pink')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🩷 पिंक</button>
+                                <button onclick="setTheme('yellow')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟡 येलो</button>
+                                <button onclick="setTheme('teal')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔷 टील</button>
+                            </div>
+                        </div>
+                        <hr class="border-gray-200 dark:border-gray-600">
+                        <button onclick="clearAllItems()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-red-600 dark:text-red-400">
+                            <span>🗑️</span>
+                            <span>सभी हटाएं</span>
+                        </button>
+                    </div>
+                </div>
+                <div onclick="editShopName()" class="cursor-pointer">
+                    <h1 id="shopTitle" class="text-xl font-bold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">🏪 दुकान रेट</h1>
+                    <p class="text-gray-600 dark:text-gray-300 text-xs">कुल वस्तुएं: <span id="itemCount">0</span></p>
+                </div>
+            </div>
+            <div>
+                <button onclick="openAddModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200" title="नई वस्तु जोड़ें">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-3 mb-4 transition-colors duration-300">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="वस्तु खोजें..." 
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                       oninput="searchItems()" onfocus="showAlphabetScroll()" onblur="hideAlphabetScroll()">
+                <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Items List -->
+        <div class="space-y-3">
+            <div id="itemsList">
+                <!-- Items will be displayed here -->
+            </div>
+            <div id="emptyState" class="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
+                <div class="text-4xl mb-2">📝</div>
+                <p class="font-medium">कोई वस्तु नहीं मिली</p>
+                <p class="text-sm">ऊपर मेन्यू से नई वस्तु जोड़ें</p>
+            </div>
+            <div id="noResults" class="hidden text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
+                <div class="text-3xl mb-2">🔍</div>
+                <p>कोई परिणाम नहीं मिला</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alphabet Scroll -->
+    <div id="alphabetScroll" class="alphabet-scroll flex flex-col space-y-1">
+        <!-- Alphabet buttons will be generated here -->
+    </div>
+
+    <!-- Alphabet Overlay -->
+    <div id="alphabetOverlay" class="alphabet-overlay">
+        <div id="currentLetter" class="text-2xl font-bold"></div>
+    </div>
+
+    <!-- Long Press Menu -->
+    <div id="longPressMenu" class="long-press-menu hidden">
+        <button onclick="editItemFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2 rounded-t-xl">
+            <span>✏️</span>
+            <span>संपादित करें</span>
+        </button>
+        <button onclick="addVarietyFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2">
+            <span>➕</span>
+            <span>वैरायटी जोड़ें</span>
+        </button>
+        <button onclick="deleteItemFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2 text-red-600 dark:text-red-400 rounded-b-xl">
+            <span>🗑️</span>
+            <span>हटाएं</span>
+        </button>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm transition-colors duration-300">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">नई वस्तु जोड़ें</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वस्तु का नाम</label>
+                    <input type="text" id="itemName" placeholder="जैसे: चावल, दाल, चीनी..." 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                </div>
+                
+
+
+                <!-- Multiple Rate Inputs -->
+                <div id="rateInputs">
+                    <div class="rate-input-group border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-3">
+                        <div class="mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वैरायटी का नाम</label>
+                            <input type="text" class="variety-rate-name w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="जैसे: लाल मिर्च, हरी मिर्च...">
+                        </div>
+                        <div class="flex space-x-2">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">रेट/भाव</label>
+                                <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="50">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">यूनिट</label>
+                                <select class="unit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                    <option value="प्रति किलो">प्रति किलो</option>
+                                    <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
+                                    <option value="प्रति नग">प्रति नग</option>
+                                    <option value="प्रति लीटर">प्रति लीटर</option>
+                                    <option value="प्रति पैकेट">प्रति पैकेट</option>
+                                    <option value="प्रति दर्जन">प्रति दर्जन</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="addRateInput()" class="text-blue-600 dark:text-blue-400 text-sm hover:underline">+ और रेट जोड़ें</button>
+                
+                <div class="pt-2">
+                    <button onclick="addItem()" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        ➕ जोड़ें
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div id="billModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden transition-colors duration-300">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">📄 पर्ची बनाएं</h3>
+            </div>
+            
+            <div class="p-4 max-h-[60vh] overflow-y-auto">
+                <div id="billItems" class="space-y-3">
+                    <!-- Bill items will be added here -->
+                </div>
+                
+                <div class="flex space-x-2 mt-4">
+                    <input type="number" id="billAmount" placeholder="₹ रुपये *" required
+                           class="w-24 px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    <input type="text" id="billProduct" placeholder="सामान का नाम (वैकल्पिक)" 
+                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    <button onclick="addBillItem()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                        ➕
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold text-gray-800 dark:text-white">कुल राशि:</span>
+                    <span id="billTotal" class="text-xl font-bold text-blue-600 dark:text-blue-400">₹0</span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="saveBill()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        💾 सेव
+                    </button>
+                    <button onclick="printBill()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        🖨️ प्रिंट
+                    </button>
+                    <button onclick="shareBillPDF()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        📤 शेयर
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bakaya Modal -->
+    <div id="bakayaModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden transition-colors duration-300">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">💰 बकाया एंट्री</h3>
+            </div>
+            
+            <div class="p-4">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">बकायाकर्ता का नाम (वैकल्पिक)</label>
+                        <input type="text" id="bakayaName" placeholder="नाम लिखें..." 
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">बकाया राशि *</label>
+                        <input type="number" id="bakayaAmount" placeholder="₹ रुपये *" required
+                               class="w-full px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">विवरण (वैकल्पिक)</label>
+                        <textarea id="bakayaDescription" placeholder="बकाया का विवरण..." rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="saveBakaya()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        💾 सेव करें
+                    </button>
+                    <button onclick="printBakaya()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        🖨️ प्रिंट
+                    </button>
+                    <button onclick="shareBakayaPDF()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        📤 शेयर
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill History Modal -->
+    <div id="billHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden transition-colors duration-300">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">📋 पर्ची हिस्ट्री</h3>
+            </div>
+            
+            <div class="p-4 max-h-[70vh] overflow-y-auto">
+                <div id="billHistoryList">
+                    <!-- Bill history will be shown here -->
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                <p class="text-center text-sm text-gray-600 dark:text-gray-300">बैक बटन दबाकर बंद करें</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bakaya History Modal -->
+    <div id="bakayaHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden transition-colors duration-300">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">💰 बकाया हिस्ट्री</h3>
+            </div>
+            
+            <div class="p-4 max-h-[70vh] overflow-y-auto">
+                <div id="bakayaHistoryList">
+                    <!-- Bakaya history will be shown here -->
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                <p class="text-center text-sm text-gray-600 dark:text-gray-300">बैक बटन दबाकर बंद करें</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-xs transition-colors duration-300">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">🧮 कैलकुलेटर</h3>
+            </div>
+            
+            <div class="p-4">
+                <div class="mb-4">
+                    <input type="text" id="calcDisplay" readonly 
+                           class="w-full px-4 py-3 text-right text-xl font-mono bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-white">
+                </div>
+                
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="clearCalc()" class="calc-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg transition duration-200">C</button>
+                    <button onclick="deleteLast()" class="calc-btn bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200">⌫</button>
+                    <button onclick="appendToCalc('/')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition duration-200">÷</button>
+                    <button onclick="appendToCalc('*')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition duration-200">×</button>
+                    
+                    <button onclick="appendToCalc('7')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">7</button>
+                    <button onclick="appendToCalc('8')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">8</button>
+                    <button onclick="appendToCalc('9')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">9</button>
+                    <button onclick="appendToCalc('-')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition duration-200">-</button>
+                    
+                    <button onclick="appendToCalc('4')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">4</button>
+                    <button onclick="appendToCalc('5')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">5</button>
+                    <button onclick="appendToCalc('6')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">6</button>
+                    <button onclick="appendToCalc('+')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition duration-200">+</button>
+                    
+                    <button onclick="appendToCalc('1')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">1</button>
+                    <button onclick="appendToCalc('2')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">2</button>
+                    <button onclick="appendToCalc('3')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">3</button>
+                    <button onclick="calculateResult()" class="calc-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition duration-200 row-span-2">=</button>
+                    
+                    <button onclick="appendToCalc('0')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200 col-span-2">0</button>
+                    <button onclick="appendToCalc('.')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">.</button>
+                </div>
+                
+                <div class="mt-4">
+                    <button onclick="checkTotal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        ✓ चेक
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm transition-colors duration-300">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">वस्तु अपडेट करें</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वस्तु का नाम</label>
+                    <input type="text" id="editItemName" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                </div>
+                
+                <div id="editVarietiesList">
+                    <!-- Varieties will be shown here for editing -->
+                </div>
+                
+                <div class="pt-2">
+                    <button onclick="updateItem()" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        ✅ अपडेट
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let items = [];
+        let editingIndex = -1;
+        let filteredItems = [];
+        let longPressTimer;
+        let currentLongPressItem = null;
+        let currentReceiptItems = [];
+        let receiptHistory = [];
+        let bakayaHistory = [];
+        let editingReceiptId = null;
+        let editingBakayaId = null;
+        let calcExpression = '';
+        let calcResult = '';
+
+        // Notification system
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            // Clear any existing timeout
+            if (window.notificationTimeout) {
+                clearTimeout(window.notificationTimeout);
+            }
+            
+            // Remove any existing classes and reset
+            notification.className = 'notification';
+            
+            // Set message and show
+            notificationText.textContent = message;
+            notification.className = `notification ${isError ? 'error' : ''} show`;
+            
+            // Auto hide after 3 seconds
+            window.notificationTimeout = setTimeout(() => {
+                notification.classList.remove('show');
+                // Reset classes after animation
+                setTimeout(() => {
+                    notification.className = 'notification';
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize app
+        function initApp() {
+            try {
+                // Initialize arrays first
+                items = [];
+                receiptHistory = [];
+                bakayaHistory = [];
+                filteredItems = [];
+                
+                // Try to load from localStorage
+                const savedItems = localStorage.getItem('shopItems');
+                const savedReceipts = localStorage.getItem('receiptHistory');
+                const savedBakaya = localStorage.getItem('bakayaHistory');
+                const savedTheme = localStorage.getItem('selectedTheme');
+                const savedShopName = localStorage.getItem('shopName');
+                
+                if (savedItems) {
+                    items = JSON.parse(savedItems);
+                }
+                if (savedReceipts) {
+                    receiptHistory = JSON.parse(savedReceipts);
+                }
+                if (savedBakaya) {
+                    bakayaHistory = JSON.parse(savedBakaya);
+                }
+                if (savedTheme) {
+                    currentTheme = savedTheme;
+                    applyTheme(savedTheme);
+                }
+                if (savedShopName) {
+                    document.getElementById('shopTitle').textContent = savedShopName;
+                }
+                
+                // Ensure arrays are valid
+                if (!Array.isArray(items)) items = [];
+                if (!Array.isArray(receiptHistory)) receiptHistory = [];
+                if (!Array.isArray(bakayaHistory)) bakayaHistory = [];
+                
+                // Sort and display
+                items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+                filteredItems = [...items];
+                
+                // Display items and generate alphabet
+                displayItems();
+                generateAlphabet();
+                
+                console.log('App initialized successfully');
+            } catch (e) {
+                console.error('Initialization error:', e);
+                items = [];
+                receiptHistory = [];
+                bakayaHistory = [];
+                filteredItems = [];
+                showNotification('ऐप शुरू करने में समस्या, फिर कोशिश करें', true);
+            }
+        }
+
+        // Storage functions
+        function saveToStorage() {
+            try {
+                localStorage.setItem('shopItems', JSON.stringify(items));
+            } catch (e) {
+                showNotification('डेटा सेव करने में समस्या', true);
+            }
+        }
+
+        function saveReceiptHistory() {
+            try {
+                localStorage.setItem('receiptHistory', JSON.stringify(receiptHistory));
+            } catch (e) {
+                showNotification('पर्ची सेव करने में समस्या', true);
+            }
+        }
+
+        function saveBakayaHistory() {
+            try {
+                localStorage.setItem('bakayaHistory', JSON.stringify(bakayaHistory));
+            } catch (e) {
+                showNotification('बकाया सेव करने में समस्या', true);
+            }
+        }
+
+        // Menu functions
+        function toggleMenu() {
+            const menu = document.getElementById('menuDropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        // Add item functions
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            document.getElementById('addModal').classList.add('flex');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            clearForm();
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addModal').classList.remove('flex');
+            clearForm();
+        }
+
+        function addRateInput() {
+            const rateInputs = document.getElementById('rateInputs');
+            const newRateInput = document.createElement('div');
+            newRateInput.className = 'rate-input-group border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-3';
+            newRateInput.innerHTML = `
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वैरायटी का नाम</label>
+                    <input type="text" class="variety-rate-name w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="जैसे: लाल मिर्च, हरी मिर्च...">
+                </div>
+                <div class="flex space-x-2">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">रेट/भाव</label>
+                        <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="रेट">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">यूनिट</label>
+                        <select class="unit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                            <option value="प्रति किलो">प्रति किलो</option>
+                            <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
+                            <option value="प्रति नग">प्रति नग</option>
+                            <option value="प्रति लीटर">प्रति लीटर</option>
+                            <option value="प्रति पैकेट">प्रति पैकेट</option>
+                            <option value="प्रति दर्जन">प्रति दर्जन</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="removeRateInput(this)" class="px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded">
+                            ❌
+                        </button>
+                    </div>
+                </div>
+            `;
+            rateInputs.appendChild(newRateInput);
+        }
+
+        function removeRateInput(button) {
+            button.closest('.rate-input-group').remove();
+        }
+
+        function addItem() {
+            const name = document.getElementById('itemName').value.trim();
+            const varietyName = document.getElementById('varietyName').value.trim();
+            const rateInputGroups = document.querySelectorAll('.rate-input-group');
+
+            if (!name) {
+                showNotification('कृपया वस्तु का नाम भरें!', true);
+                return;
+            }
+
+            const varieties = [];
+            
+            rateInputGroups.forEach(group => {
+                const varietyRateName = group.querySelector('.variety-rate-name').value.trim();
+                const rateInput = group.querySelector('.rate-input').value.trim();
+                const unitInput = group.querySelector('.unit-input').value;
+                
+                if (rateInput && !isNaN(rateInput) && parseFloat(rateInput) > 0) {
+                    varieties.push({
+                        name: varietyRateName || varietyName || 'सामान्य',
+                        rates: [{
+                            rate: parseFloat(rateInput),
+                            unit: unitInput
+                        }],
+                        timestamp: new Date().toLocaleString('hi-IN')
+                    });
+                }
+            });
+
+            if (varieties.length === 0) {
+                showNotification('कम से कम एक सही रेट भरें!', true);
+                return;
+            }
+
+            // Check if item already exists
+            const existingItemIndex = items.findIndex(item => item.name.toLowerCase() === name.toLowerCase());
+            
+            if (existingItemIndex !== -1) {
+                // Add varieties to existing item
+                items[existingItemIndex].varieties.push(...varieties);
+                showNotification('वैरायटी जोड़ दी गई!');
+            } else {
+                // Create new item
+                const newItem = {
+                    name: name,
+                    varieties: varieties,
+                    timestamp: new Date().toLocaleString('hi-IN')
+                };
+                items.push(newItem);
+                showNotification('नई वस्तु जोड़ दी गई!');
+            }
+
+            items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+            saveToStorage();
+            filteredItems = [...items];
+            displayItems();
+            generateAlphabet();
+            closeAddModal();
+        }
+
+        function clearForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('varietyName').value = '';
+            const rateInputs = document.getElementById('rateInputs');
+            rateInputs.innerHTML = `
+                <div class="rate-input-group border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-3">
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वैरायटी का नाम</label>
+                        <input type="text" class="variety-rate-name w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" placeholder="जैसे: लाल मिर्च, हरी मिर्च...">
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">रेट/भाव</label>
+                            <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="50">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">यूनिट</label>
+                            <select class="unit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                <option value="प्रति किलो">प्रति किलो</option>
+                                <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
+                                <option value="प्रति नग">प्रति नग</option>
+                                <option value="प्रति लीटर">प्रति लीटर</option>
+                                <option value="प्रति पैकेट">प्रति पैकेट</option>
+                                <option value="प्रति दर्जन">प्रति दर्जन</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Search and display functions
+        function searchItems() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                filteredItems = [...items];
+            } else {
+                filteredItems = items.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.varieties.some(variety => variety.name.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            displayItems();
+        }
+
+        function displayItems() {
+            const itemsList = document.getElementById('itemsList');
+            const emptyState = document.getElementById('emptyState');
+            const noResults = document.getElementById('noResults');
+            const itemCount = document.getElementById('itemCount');
+
+            itemCount.textContent = items.length;
+
+            if (items.length === 0) {
+                itemsList.innerHTML = '';
+                emptyState.style.display = 'block';
+                noResults.style.display = 'none';
+                return;
+            }
+
+            if (filteredItems.length === 0) {
+                itemsList.innerHTML = '';
+                emptyState.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            noResults.style.display = 'none';
+            
+            itemsList.innerHTML = filteredItems.map((item, index) => {
+                const originalIndex = items.findIndex(originalItem => originalItem.name === item.name);
+                
+                return `
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600 overflow-hidden transition-colors duration-300 item-card" 
+                     data-item-index="${originalIndex}"
+                     ontouchstart="startLongPress(event, ${originalIndex})" 
+                     ontouchend="endLongPress()" 
+                     onmousedown="startLongPress(event, ${originalIndex})" 
+                     onmouseup="endLongPress()"
+                     onmouseleave="endLongPress()">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-800 dark:text-white text-lg mb-2">${item.name}</h3>
+                        <div class="space-y-2">
+                            ${item.varieties.map(variety => `
+                                <div class="variety-item">
+                                    ${variety.name !== 'सामान्य' ? `<div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">${variety.name}</div>` : ''}
+                                    <div class="flex flex-wrap gap-2">
+                                        ${variety.rates.map(rateInfo => `
+                                            <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-sm font-medium">
+                                                ₹${rateInfo.rate} ${rateInfo.unit}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Long press functions
+        function startLongPress(event, itemIndex) {
+            event.preventDefault();
+            currentLongPressItem = itemIndex;
+            longPressTimer = setTimeout(() => {
+                showLongPressMenu(event, itemIndex);
+            }, 500);
+        }
+
+        function endLongPress() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }
+
+        function showLongPressMenu(event, itemIndex) {
+            const menu = document.getElementById('longPressMenu');
+            const rect = event.target.closest('.item-card').getBoundingClientRect();
+            
+            menu.style.left = `${rect.left + 10}px`;
+            menu.style.top = `${rect.top + 10}px`;
+            menu.classList.remove('hidden');
+            menu.classList.add('show');
+            
+            currentLongPressItem = itemIndex;
+        }
+
+        function hideLongPressMenu() {
+            const menu = document.getElementById('longPressMenu');
+            menu.classList.remove('show');
+            setTimeout(() => {
+                menu.classList.add('hidden');
+            }, 200);
+        }
+
+        function editItemFromMenu() {
+            if (currentLongPressItem !== null) {
+                editItem(currentLongPressItem);
+            }
+            hideLongPressMenu();
+        }
+
+        function addVarietyFromMenu() {
+            if (currentLongPressItem !== null) {
+                document.getElementById('itemName').value = items[currentLongPressItem].name;
+                openAddModal();
+            }
+            hideLongPressMenu();
+        }
+
+        function deleteItemFromMenu() {
+            if (currentLongPressItem !== null) {
+                deleteItem(currentLongPressItem);
+            }
+            hideLongPressMenu();
+        }
+
+        // Alphabet scroll functions
+        function showAlphabetScroll() {
+            const alphabetScroll = document.getElementById('alphabetScroll');
+            alphabetScroll.classList.add('show');
+        }
+
+        function hideAlphabetScroll() {
+            setTimeout(() => {
+                const alphabetScroll = document.getElementById('alphabetScroll');
+                alphabetScroll.classList.remove('show');
+            }, 2000);
+        }
+
+        function generateAlphabet() {
+            const alphabetScroll = document.getElementById('alphabetScroll');
+            const hindiAlphabet = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ', 'क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ट', 'ठ', 'ड', 'ढ', 'त', 'थ', 'द', 'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह'];
+            const englishAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            
+            const availableLetters = new Set();
+            items.forEach(item => {
+                const firstChar = item.name.charAt(0).toUpperCase();
+                availableLetters.add(firstChar);
+            });
+
+            const allLetters = [...hindiAlphabet, ...englishAlphabet];
+            
+            alphabetScroll.innerHTML = allLetters.map(letter => {
+                const isAvailable = availableLetters.has(letter);
+                return `
+                    <button ontouchstart="showLetterOverlay('${letter}')" ontouchend="hideLetterOverlay()" onclick="scrollToLetter('${letter}')" 
+                            class="w-6 h-6 text-xs font-medium rounded transition duration-200 ${
+                                isAvailable 
+                                    ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900' 
+                                    : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                            }"
+                            ${!isAvailable ? 'disabled' : ''}>
+                        ${letter}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function showLetterOverlay(letter) {
+            const overlay = document.getElementById('alphabetOverlay');
+            const currentLetter = document.getElementById('currentLetter');
+            currentLetter.textContent = letter;
+            overlay.classList.add('show');
+        }
+
+        function hideLetterOverlay() {
+            setTimeout(() => {
+                const overlay = document.getElementById('alphabetOverlay');
+                overlay.classList.remove('show');
+            }, 100);
+        }
+
+        function scrollToLetter(letter) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = letter;
+            searchItems();
+        }
+
+        // Edit functions
+        function editItem(index) {
+            editingIndex = index;
+            const item = items[index];
+            
+            document.getElementById('editItemName').value = item.name;
+            
+            const editVarietiesList = document.getElementById('editVarietiesList');
+            editVarietiesList.innerHTML = item.varieties.map((variety, vIndex) => `
+                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-3">
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वैरायटी का नाम</label>
+                        <input type="text" value="${variety.name}" class="variety-name-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    </div>
+                    <div class="variety-rates" data-variety-index="${vIndex}">
+                        ${variety.rates.map((rateInfo, rIndex) => `
+                            <div class="flex space-x-2 mb-2">
+                                <div class="flex-1">
+                                    <input type="number" value="${rateInfo.rate}" class="rate-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                </div>
+                                <div class="flex-1">
+                                    <select class="unit-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                        <option value="प्रति किलो" ${rateInfo.unit === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
+                                        <option value="प्रति 100 ग्राम" ${rateInfo.unit === 'प्रति 100 ग्राम' ? 'selected' : ''}>प्रति 100 ग्राम</option>
+                                        <option value="प्रति नग" ${rateInfo.unit === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
+                                        <option value="प्रति लीटर" ${rateInfo.unit === 'प्रति लीटर' ? 'selected' : ''}>प्रति लीटर</option>
+                                        <option value="प्रति पैकेट" ${rateInfo.unit === 'प्रति पैकेट' ? 'selected' : ''}>प्रति पैकेट</option>
+                                        <option value="प्रति दर्जन" ${rateInfo.unit === 'प्रति दर्जन' ? 'selected' : ''}>प्रति दर्जन</option>
+                                    </select>
+                                </div>
+                                ${variety.rates.length > 1 ? `<button type="button" onclick="removeEditRate(this)" class="px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded">❌</button>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button type="button" onclick="addEditRate(${vIndex})" class="text-blue-600 dark:text-blue-400 text-sm hover:underline">+ रेट जोड़ें</button>
+                </div>
+            `).join('');
+            
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('flex');
+        }
+
+        function addEditRate(varietyIndex) {
+            const varietyRates = document.querySelector(`[data-variety-index="${varietyIndex}"]`);
+            const newRateDiv = document.createElement('div');
+            newRateDiv.className = 'flex space-x-2 mb-2';
+            newRateDiv.innerHTML = `
+                <div class="flex-1">
+                    <input type="number" class="rate-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="रेट">
+                </div>
+                <div class="flex-1">
+                    <select class="unit-edit-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        <option value="प्रति किलो">प्रति किलो</option>
+                        <option value="प्रति 100 ग्राम">प्रति 100 ग्राम</option>
+                        <option value="प्रति नग">प्रति नग</option>
+                        <option value="प्रति लीटर">प्रति लीटर</option>
+                        <option value="प्रति पैकेट">प्रति पैकेट</option>
+                        <option value="प्रति दर्जन">प्रति दर्जन</option>
+                    </select>
+                </div>
+                <button type="button" onclick="removeEditRate(this)" class="px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded">❌</button>
+            `;
+            varietyRates.appendChild(newRateDiv);
+        }
+
+        function removeEditRate(button) {
+            button.closest('.flex').remove();
+        }
+
+        function updateItem() {
+            const name = document.getElementById('editItemName').value.trim();
+            
+            if (!name) {
+                showNotification('कृपया वस्तु का नाम भरें!', true);
+                return;
+            }
+
+            const varietyNameInputs = document.querySelectorAll('.variety-name-input');
+            const varieties = [];
+
+            varietyNameInputs.forEach((nameInput, vIndex) => {
+                const varietyDiv = document.querySelector(`[data-variety-index="${vIndex}"]`);
+                const rateInputs = varietyDiv.querySelectorAll('.rate-edit-input');
+                const unitInputs = varietyDiv.querySelectorAll('.unit-edit-input');
+                
+                const rates = [];
+                rateInputs.forEach((rateInput, rIndex) => {
+                    const rate = rateInput.value.trim();
+                    if (rate && !isNaN(rate) && parseFloat(rate) > 0) {
+                        rates.push({
+                            rate: parseFloat(rate),
+                            unit: unitInputs[rIndex].value
+                        });
+                    }
+                });
+
+                if (rates.length > 0) {
+                    varieties.push({
+                        name: nameInput.value.trim() || 'सामान्य',
+                        rates: rates,
+                        timestamp: new Date().toLocaleString('hi-IN')
+                    });
+                }
+            });
+
+            if (varieties.length === 0) {
+                showNotification('कम से कम एक वैरायटी और रेट भरें!', true);
+                return;
+            }
+
+            items[editingIndex] = {
+                ...items[editingIndex],
+                name: name,
+                varieties: varieties,
+                timestamp: new Date().toLocaleString('hi-IN')
+            };
+
+            items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+            saveToStorage();
+            filteredItems = [...items];
+            displayItems();
+            generateAlphabet();
+            closeEditModal();
+            showNotification('वस्तु अपडेट हो गई!');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+            editingIndex = -1;
+        }
+
+        function deleteItem(index) {
+            if (confirm('क्या आप वाकई इस वस्तु को हटाना चाहते हैं?')) {
+                items.splice(index, 1);
+                saveToStorage();
+                filteredItems = [...items];
+                displayItems();
+                generateAlphabet();
+                showNotification('वस्तु हटा दी गई!');
+            }
+        }
+
+        function clearAllItems() {
+            if (confirm('क्या आप वाकई सभी वस्तुओं को हटाना चाहते हैं?')) {
+                items = [];
+                filteredItems = [];
+                saveToStorage();
+                displayItems();
+                generateAlphabet();
+                document.getElementById('menuDropdown').classList.add('hidden');
+                showNotification('सभी वस्तुएं हटा दी गईं!');
+            }
+        }
+
+        // Receipt functions
+        function openBillModal() {
+            document.getElementById('billModal').classList.remove('hidden');
+            document.getElementById('billModal').classList.add('flex');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            currentReceiptItems = [];
+            editingReceiptId = null;
+            updateReceiptDisplay();
+        }
+
+        function closeBillModal() {
+            document.getElementById('billModal').classList.add('hidden');
+            document.getElementById('billModal').classList.remove('flex');
+            document.getElementById('billAmount').value = '';
+            document.getElementById('billProduct').value = '';
+            currentReceiptItems = [];
+            editingReceiptId = null;
+        }
+
+        function addBillItem() {
+            const amount = document.getElementById('billAmount').value.trim();
+            const product = document.getElementById('billProduct').value.trim() || 'सामान';
+
+            if (!amount) {
+                showNotification('कृपया रुपये भरें!', true);
+                return;
+            }
+
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                showNotification('कृपया सही रुपये की मात्रा भरें!', true);
+                return;
+            }
+
+            currentReceiptItems.push({
+                amount: parseFloat(amount),
+                product: product
+            });
+
+            document.getElementById('billAmount').value = '';
+            document.getElementById('billProduct').value = '';
+            updateReceiptDisplay();
+        }
+
+        function removeBillItem(index) {
+            currentReceiptItems.splice(index, 1);
+            updateReceiptDisplay();
+        }
+
+        function updateReceiptDisplay() {
+            const billItems = document.getElementById('billItems');
+            const billTotal = document.getElementById('billTotal');
+
+            if (currentReceiptItems.length === 0) {
+                billItems.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-4">कोई सामान नहीं जोड़ा गया</p>';
+                billTotal.textContent = '₹0';
+                return;
+            }
+
+            const total = currentReceiptItems.reduce((sum, item) => sum + item.amount, 0);
+            billTotal.textContent = `₹${total}`;
+
+            billItems.innerHTML = currentReceiptItems.map((item, index) => `
+                <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                    <div class="flex-1">
+                        <span class="font-medium text-blue-600 dark:text-blue-400">₹${item.amount}</span>
+                        <span class="text-gray-800 dark:text-white ml-3">${item.product}</span>
+                    </div>
+                    <button onclick="removeBillItem(${index})" class="text-red-500 hover:bg-red-100 dark:hover:bg-red-900 p-1 rounded transition duration-200">
+                        ❌
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function saveBill() {
+            if (currentReceiptItems.length === 0) {
+                showNotification('कम से कम एक सामान जोड़ें!', true);
+                return;
+            }
+
+            const total = currentReceiptItems.reduce((sum, item) => sum + item.amount, 0);
+            const now = new Date();
+            
+            if (editingReceiptId) {
+                // Update existing receipt
+                const receiptIndex = receiptHistory.findIndex(r => r.id === editingReceiptId);
+                if (receiptIndex !== -1) {
+                    receiptHistory[receiptIndex] = {
+                        ...receiptHistory[receiptIndex],
+                        items: [...currentReceiptItems],
+                        total: total,
+                        updatedDate: now.toLocaleDateString('hi-IN'),
+                        updatedTime: now.toLocaleTimeString('hi-IN')
+                    };
+                }
+                showNotification('पर्ची अपडेट हो गई!');
+            } else {
+                // Create new receipt
+                const receipt = {
+                    id: Date.now(),
+                    items: [...currentReceiptItems],
+                    total: total,
+                    date: now.toLocaleDateString('hi-IN'),
+                    time: now.toLocaleTimeString('hi-IN')
+                };
+                receiptHistory.unshift(receipt);
+                showNotification('पर्ची सेव हो गई!');
+            }
+
+            saveReceiptHistory();
+            closeBillModal();
+        }
+
+        function printBill() {
+            if (currentReceiptItems.length === 0) {
+                showNotification('कम से कम एक सामान जोड़ें!', true);
+                return;
+            }
+
+            try {
+                const total = currentReceiptItems.reduce((sum, item) => sum + item.amount, 0);
+                const now = new Date();
+                
+                const printContent = generateReceiptHTML(currentReceiptItems, total, now.toLocaleDateString('hi-IN'), now.toLocaleTimeString('hi-IN'));
+
+                // Create a safe print function
+                const safePrint = () => {
+                    const printWindow = window.open('', '_blank', 'width=400,height=600,scrollbars=yes');
+                    if (!printWindow) {
+                        showNotification('प्रिंट विंडो खोलने में समस्या! पॉपअप ब्लॉकर चेक करें।', true);
+                        return;
+                    }
+
+                    printWindow.document.open();
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                                <title>पर्ची प्रिंट</title>
+                                <meta charset="UTF-8">
+                                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+                                <style>
+                                    body { font-family: 'Noto Sans Devanagari', sans-serif; margin: 0; padding: 10px; }
+                                    @media print {
+                                        body { margin: 0; }
+                                        @page { margin: 0.5cm; }
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                ${printContent}
+                            </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    // Wait for content to load then print
+                    setTimeout(() => {
+                        try {
+                            printWindow.focus();
+                            printWindow.print();
+                        } catch (e) {
+                            console.error('Print error:', e);
+                        }
+                    }, 1000);
+                    
+                    showNotification('प्रिंट विंडो तैयार!');
+                };
+
+                safePrint();
+            } catch (error) {
+                console.error('Print function error:', error);
+                showNotification('प्रिंट करने में समस्या!', true);
+            }
+        }
+
+        function shareBillPDF() {
+            if (currentReceiptItems.length === 0) {
+                showNotification('कम से कम एक सामान जोड़ें!', true);
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const total = currentReceiptItems.reduce((sum, item) => sum + item.amount, 0);
+                const now = new Date();
+                
+                // Add content to PDF
+                doc.setFontSize(20);
+                doc.text('🏪 दुकान रेट - पर्ची', 20, 30);
+                
+                doc.setFontSize(12);
+                doc.text(`दिनांक: ${now.toLocaleDateString('hi-IN')}`, 20, 50);
+                doc.text(`समय: ${now.toLocaleTimeString('hi-IN')}`, 120, 50);
+                
+                doc.setFontSize(14);
+                doc.text('सामान की सूची:', 20, 70);
+                
+                let yPos = 90;
+                currentReceiptItems.forEach((item, index) => {
+                    doc.setFontSize(12);
+                    doc.text(`${index + 1}. ₹${item.amount} - ${item.product}`, 20, yPos);
+                    yPos += 15;
+                });
+                
+                doc.setFontSize(16);
+                doc.text(`कुल राशि: ₹${total}`, 20, yPos + 20);
+                
+                doc.text('धन्यवाद! फिर आइएगा 🙏', 20, yPos + 40);
+                
+                // Save PDF
+                const fileName = `पर्ची_${now.getTime()}.pdf`;
+                doc.save(fileName);
+                
+                showNotification('PDF डाउनलोड हो गई!');
+            } catch (error) {
+                showNotification('PDF बनाने में समस्या!', true);
+            }
+        }
+
+        function generateReceiptHTML(items, total, date, time) {
+            return `
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; max-width: 300px; margin: 0 auto; padding: 20px; border: 1px solid #000;">
+                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: bold;">🏪 दुकान रेट V3</h2>
+                        <p style="margin: 5px 0; font-size: 14px;">पर्ची/रसीद</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; font-size: 12px; display: flex; justify-content: space-between;">
+                        <span><strong>दिनांक:</strong> ${date}</span>
+                        <span><strong>समय:</strong> ${time}</span>
+                    </div>
+                    
+                    <div style="border-bottom: 1px solid #000; margin-bottom: 10px; padding-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 14px;">
+                            <span>राशि</span>
+                            <span>सामान</span>
+                        </div>
+                        ${items.map(item => `
+                            <div style="display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; border-bottom: 1px dotted #ccc; padding-bottom: 3px;">
+                                <span style="font-weight: bold;">₹${item.amount}</span>
+                                <span style="text-align: right; max-width: 60%;">${item.product}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; border: 2px solid #000; padding: 10px;">
+                        <p style="margin: 0;">कुल राशि: ₹${total}</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+                        <p style="margin: 0;">धन्यवाद! फिर आइएगा</p>
+                        <p style="margin: 5px 0;">🙏</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openBillHistory() {
+            document.getElementById('billHistoryModal').classList.remove('hidden');
+            document.getElementById('billHistoryModal').classList.add('flex');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            displayBillHistory();
+        }
+
+        function closeBillHistoryModal() {
+            document.getElementById('billHistoryModal').classList.add('hidden');
+            document.getElementById('billHistoryModal').classList.remove('flex');
+        }
+
+        function displayBillHistory() {
+            const billHistoryList = document.getElementById('billHistoryList');
+            
+            if (receiptHistory.length === 0) {
+                billHistoryList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">कोई पर्ची हिस्ट्री नहीं मिली</p>';
+                return;
+            }
+
+            billHistoryList.innerHTML = receiptHistory.map(receipt => `
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-blue-600 dark:text-blue-400">₹${receipt.total}</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">${receipt.date} ${receipt.time}</span>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                        ${receipt.items.slice(0, 2).map(item => `₹${item.amount} - ${item.product}`).join(', ')}
+                        ${receipt.items.length > 2 ? ` और ${receipt.items.length - 2} और...` : ''}
+                    </div>
+                    ${receipt.updatedDate ? `<div class="text-xs text-orange-600 dark:text-orange-400 mb-2">अपडेट: ${receipt.updatedDate} ${receipt.updatedTime}</div>` : ''}
+                    <div class="flex space-x-2">
+                        <button onclick="editReceipt(${receipt.id})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition duration-200">
+                            ✏️ एडिट
+                        </button>
+                        <button onclick="reprintBill(${receipt.id})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition duration-200">
+                            🖨️ प्रिंट
+                        </button>
+                        <button onclick="shareReceiptPDF(${receipt.id})" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition duration-200">
+                            📤 शेयर
+                        </button>
+                        <button onclick="deleteBill(${receipt.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition duration-200">
+                            🗑️ हटाएं
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editReceipt(receiptId) {
+            const receipt = receiptHistory.find(r => r.id === receiptId);
+            if (!receipt) return;
+
+            editingReceiptId = receiptId;
+            currentReceiptItems = [...receipt.items];
+            
+            closeBillHistoryModal();
+            openBillModal();
+        }
+
+        function reprintBill(receiptId) {
+            const receipt = receiptHistory.find(r => r.id === receiptId);
+            if (!receipt) return;
+
+            try {
+                const printContent = generateReceiptHTML(receipt.items, receipt.total, receipt.date, receipt.time);
+
+                const safePrint = () => {
+                    const printWindow = window.open('', '_blank', 'width=400,height=600,scrollbars=yes');
+                    if (!printWindow) {
+                        showNotification('प्रिंट विंडो खोलने में समस्या!', true);
+                        return;
+                    }
+
+                    printWindow.document.open();
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                                <title>पर्ची प्रिंट</title>
+                                <meta charset="UTF-8">
+                                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+                                <style>
+                                    body { font-family: 'Noto Sans Devanagari', sans-serif; margin: 0; padding: 10px; }
+                                    @media print { body { margin: 0; } @page { margin: 0.5cm; } }
+                                </style>
+                            </head>
+                            <body>${printContent}</body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    setTimeout(() => {
+                        try {
+                            printWindow.focus();
+                            printWindow.print();
+                        } catch (e) {
+                            console.error('Print error:', e);
+                        }
+                    }, 1000);
+                    
+                    showNotification('प्रिंट विंडो तैयार!');
+                };
+
+                safePrint();
+            } catch (error) {
+                console.error('Reprint error:', error);
+                showNotification('प्रिंट करने में समस्या!', true);
+            }
+        }
+
+        function shareReceiptPDF(receiptId) {
+            const receipt = receiptHistory.find(r => r.id === receiptId);
+            if (!receipt) return;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Add content to PDF
+                doc.setFontSize(20);
+                doc.text('🏪 दुकान रेट V3 - पर्ची', 20, 30);
+                
+                doc.setFontSize(12);
+                doc.text(`दिनांक: ${receipt.date}`, 20, 50);
+                doc.text(`समय: ${receipt.time}`, 120, 50);
+                
+                doc.setFontSize(14);
+                doc.text('सामान की सूची:', 20, 70);
+                
+                let yPos = 90;
+                receipt.items.forEach((item, index) => {
+                    doc.setFontSize(12);
+                    doc.text(`${index + 1}. ₹${item.amount} - ${item.product}`, 20, yPos);
+                    yPos += 15;
+                });
+                
+                doc.setFontSize(16);
+                doc.text(`कुल राशि: ₹${receipt.total}`, 20, yPos + 20);
+                
+                doc.text('धन्यवाद! फिर आइएगा 🙏', 20, yPos + 40);
+                
+                // Save PDF
+                const fileName = `पर्ची_${receipt.date.replace(/\//g, '-')}_${receipt.id}.pdf`;
+                doc.save(fileName);
+                
+                showNotification('PDF डाउनलोड हो गई!');
+            } catch (error) {
+                showNotification('PDF बनाने में समस्या!', true);
+            }
+        }
+
+        function deleteBill(receiptId) {
+            if (confirm('क्या आप वाकई इस पर्ची को हटाना चाहते हैं?')) {
+                receiptHistory = receiptHistory.filter(receipt => receipt.id !== receiptId);
+                saveReceiptHistory();
+                displayBillHistory();
+                showNotification('पर्ची हटा दी गई!');
+            }
+        }
+
+        // Bakaya functions
+        function openBakayaModal() {
+            document.getElementById('bakayaModal').classList.remove('hidden');
+            document.getElementById('bakayaModal').classList.add('flex');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            clearBakayaForm();
+        }
+
+        function closeBakayaModal() {
+            document.getElementById('bakayaModal').classList.add('hidden');
+            document.getElementById('bakayaModal').classList.remove('flex');
+            clearBakayaForm();
+            editingBakayaId = null;
+        }
+
+        function clearBakayaForm() {
+            document.getElementById('bakayaName').value = '';
+            document.getElementById('bakayaAmount').value = '';
+            document.getElementById('bakayaDescription').value = '';
+        }
+
+        function saveBakaya() {
+            const name = document.getElementById('bakayaName').value.trim() || 'ग्राहक';
+            const amount = document.getElementById('bakayaAmount').value.trim();
+            const description = document.getElementById('bakayaDescription').value.trim();
+
+            if (!amount) {
+                showNotification('कृपया राशि भरें!', true);
+                return;
+            }
+
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                showNotification('कृपया सही राशि भरें!', true);
+                return;
+            }
+
+            const now = new Date();
+            
+            if (editingBakayaId) {
+                // Update existing bakaya
+                const bakayaIndex = bakayaHistory.findIndex(b => b.id === editingBakayaId);
+                if (bakayaIndex !== -1) {
+                    bakayaHistory[bakayaIndex] = {
+                        ...bakayaHistory[bakayaIndex],
+                        name: name,
+                        amount: parseFloat(amount),
+                        description: description,
+                        updatedDate: now.toLocaleDateString('hi-IN'),
+                        updatedTime: now.toLocaleTimeString('hi-IN')
+                    };
+                }
+                showNotification('बकाया अपडेट हो गया!');
+            } else {
+                // Create new bakaya
+                const bakaya = {
+                    id: Date.now(),
+                    name: name,
+                    amount: parseFloat(amount),
+                    description: description,
+                    date: now.toLocaleDateString('hi-IN'),
+                    time: now.toLocaleTimeString('hi-IN')
+                };
+                bakayaHistory.unshift(bakaya);
+                showNotification('बकाया सेव हो गया!');
+            }
+
+            saveBakayaHistory();
+            closeBakayaModal();
+        }
+
+        function printBakaya() {
+            const name = document.getElementById('bakayaName').value.trim();
+            const amount = document.getElementById('bakayaAmount').value.trim();
+            const description = document.getElementById('bakayaDescription').value.trim();
+
+            if (!name || !amount) {
+                showNotification('कृपया नाम और राशि दोनों भरें!', true);
+                return;
+            }
+
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                showNotification('कृपया सही राशि भरें!', true);
+                return;
+            }
+
+            try {
+                const now = new Date();
+                const printContent = generateBakayaHTML(name, parseFloat(amount), description, now.toLocaleDateString('hi-IN'), now.toLocaleTimeString('hi-IN'));
+
+                const safePrint = () => {
+                    const printWindow = window.open('', '_blank', 'width=400,height=600,scrollbars=yes');
+                    if (!printWindow) {
+                        showNotification('प्रिंट विंडो खोलने में समस्या! पॉपअप ब्लॉकर चेक करें।', true);
+                        return;
+                    }
+
+                    printWindow.document.open();
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                                <title>बकाया प्रिंट</title>
+                                <meta charset="UTF-8">
+                                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+                                <style>
+                                    body { font-family: 'Noto Sans Devanagari', sans-serif; margin: 0; padding: 10px; }
+                                    @media print {
+                                        body { margin: 0; }
+                                        @page { margin: 0.5cm; }
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                ${printContent}
+                            </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    setTimeout(() => {
+                        try {
+                            printWindow.focus();
+                            printWindow.print();
+                        } catch (e) {
+                            console.error('Print error:', e);
+                        }
+                    }, 1000);
+                    
+                    showNotification('प्रिंट विंडो तैयार!');
+                };
+
+                safePrint();
+            } catch (error) {
+                console.error('Bakaya print error:', error);
+                showNotification('प्रिंट करने में समस्या!', true);
+            }
+        }
+
+        function shareBakayaPDF() {
+            const name = document.getElementById('bakayaName').value.trim();
+            const amount = document.getElementById('bakayaAmount').value.trim();
+            const description = document.getElementById('bakayaDescription').value.trim();
+
+            if (!name || !amount) {
+                showNotification('कृपया नाम और राशि दोनों भरें!', true);
+                return;
+            }
+
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                showNotification('कृपया सही राशि भरें!', true);
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const now = new Date();
+                
+                // Add content to PDF
+                doc.setFontSize(20);
+                doc.text('🏪 दुकान रेट V3 - बकाया', 20, 30);
+                
+                doc.setFontSize(12);
+                doc.text(`दिनांक: ${now.toLocaleDateString('hi-IN')}`, 20, 50);
+                doc.text(`समय: ${now.toLocaleTimeString('hi-IN')}`, 120, 50);
+                
+                doc.setFontSize(16);
+                doc.text(`बकायाकर्ता: ${name}`, 20, 80);
+                
+                doc.setFontSize(18);
+                doc.text(`बकाया राशि: ₹${parseFloat(amount)}`, 20, 110);
+                
+                if (description) {
+                    doc.setFontSize(12);
+                    doc.text('विवरण:', 20, 140);
+                    doc.text(description, 20, 155);
+                }
+                
+                doc.setFontSize(12);
+                doc.text('कृपया जल्दी भुगतान करें।', 20, 200);
+                doc.text('धन्यवाद! 🙏', 20, 220);
+                
+                // Save PDF
+                const fileName = `बकाया_${name}_${now.getTime()}.pdf`;
+                doc.save(fileName);
+                
+                showNotification('PDF डाउनलोड हो गई!');
+            } catch (error) {
+                showNotification('PDF बनाने में समस्या!', true);
+            }
+        }
+
+        function generateBakayaHTML(name, amount, description, date, time) {
+            return `
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; max-width: 300px; margin: 0 auto; padding: 20px; border: 1px solid #000;">
+                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: bold;">🏪 दुकान रेट V3</h2>
+                        <p style="margin: 5px 0; font-size: 14px;">बकाया रसीद</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; font-size: 12px; display: flex; justify-content: space-between;">
+                        <span><strong>दिनांक:</strong> ${date}</span>
+                        <span><strong>समय:</strong> ${time}</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">
+                            बकायाकर्ता: ${name}
+                        </div>
+                        
+                        <div style="font-size: 20px; font-weight: bold; color: #d32f2f; text-align: center; margin: 15px 0; padding: 10px; border: 2px solid #d32f2f;">
+                            बकाया राशि: ₹${amount}
+                        </div>
+                        
+                        ${description ? `
+                            <div style="margin-top: 15px;">
+                                <strong>विवरण:</strong><br>
+                                <span style="font-size: 14px;">${description}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+                        <p style="margin: 0; font-weight: bold;">कृपया जल्दी भुगतान करें।</p>
+                        <p style="margin: 5px 0;">धन्यवाद! 🙏</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openBakayaHistory() {
+            document.getElementById('bakayaHistoryModal').classList.remove('hidden');
+            document.getElementById('bakayaHistoryModal').classList.add('flex');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            displayBakayaHistory();
+        }
+
+        function closeBakayaHistoryModal() {
+            document.getElementById('bakayaHistoryModal').classList.add('hidden');
+            document.getElementById('bakayaHistoryModal').classList.remove('flex');
+        }
+
+        function displayBakayaHistory() {
+            const bakayaHistoryList = document.getElementById('bakayaHistoryList');
+            
+            if (bakayaHistory.length === 0) {
+                bakayaHistoryList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">कोई बकाया हिस्ट्री नहीं मिली</p>';
+                return;
+            }
+
+            const totalBakaya = bakayaHistory.reduce((sum, bakaya) => sum + bakaya.amount, 0);
+
+            bakayaHistoryList.innerHTML = `
+                <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-4">
+                    <div class="text-center">
+                        <span class="text-lg font-bold text-red-600 dark:text-red-400">कुल बकाया: ₹${totalBakaya}</span>
+                    </div>
+                </div>
+                ${bakayaHistory.map(bakaya => `
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-semibold text-red-600 dark:text-red-400">₹${bakaya.amount}</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-300">${bakaya.date} ${bakaya.time}</span>
+                        </div>
+                        <div class="text-lg font-medium text-gray-800 dark:text-white mb-2">${bakaya.name}</div>
+                        ${bakaya.description ? `<div class="text-sm text-gray-600 dark:text-gray-300 mb-2">${bakaya.description}</div>` : ''}
+                        ${bakaya.updatedDate ? `<div class="text-xs text-orange-600 dark:text-orange-400 mb-2">अपडेट: ${bakaya.updatedDate} ${bakaya.updatedTime}</div>` : ''}
+                        <div class="flex space-x-2">
+                            <button onclick="editBakaya(${bakaya.id})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition duration-200">
+                                ✏️ एडिट
+                            </button>
+                            <button onclick="reprintBakaya(${bakaya.id})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition duration-200">
+                                🖨️ प्रिंट
+                            </button>
+                            <button onclick="shareBakayaHistoryPDF(${bakaya.id})" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition duration-200">
+                                📤 शेयर
+                            </button>
+                            <button onclick="deleteBakaya(${bakaya.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition duration-200">
+                                🗑️ हटाएं
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function editBakaya(bakayaId) {
+            const bakaya = bakayaHistory.find(b => b.id === bakayaId);
+            if (!bakaya) return;
+
+            editingBakayaId = bakayaId;
+            document.getElementById('bakayaName').value = bakaya.name;
+            document.getElementById('bakayaAmount').value = bakaya.amount;
+            document.getElementById('bakayaDescription').value = bakaya.description || '';
+            
+            closeBakayaHistoryModal();
+            openBakayaModal();
+        }
+
+        function reprintBakaya(bakayaId) {
+            const bakaya = bakayaHistory.find(b => b.id === bakayaId);
+            if (!bakaya) return;
+
+            try {
+                const printContent = generateBakayaHTML(bakaya.name, bakaya.amount, bakaya.description, bakaya.date, bakaya.time);
+
+                const safePrint = () => {
+                    const printWindow = window.open('', '_blank', 'width=400,height=600,scrollbars=yes');
+                    if (!printWindow) {
+                        showNotification('प्रिंट विंडो खोलने में समस्या!', true);
+                        return;
+                    }
+
+                    printWindow.document.open();
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                                <title>बकाया प्रिंट</title>
+                                <meta charset="UTF-8">
+                                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+                                <style>
+                                    body { font-family: 'Noto Sans Devanagari', sans-serif; margin: 0; padding: 10px; }
+                                    @media print { body { margin: 0; } @page { margin: 0.5cm; } }
+                                </style>
+                            </head>
+                            <body>${printContent}</body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    setTimeout(() => {
+                        try {
+                            printWindow.focus();
+                            printWindow.print();
+                        } catch (e) {
+                            console.error('Print error:', e);
+                        }
+                    }, 1000);
+                    
+                    showNotification('प्रिंट विंडो तैयार!');
+                };
+
+                safePrint();
+            } catch (error) {
+                console.error('Bakaya reprint error:', error);
+                showNotification('प्रिंट करने में समस्या!', true);
+            }
+        }
+
+        function shareBakayaHistoryPDF(bakayaId) {
+            const bakaya = bakayaHistory.find(b => b.id === bakayaId);
+            if (!bakaya) return;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Add content to PDF
+                doc.setFontSize(20);
+                doc.text('🏪 दुकान रेट V3 - बकाया', 20, 30);
+                
+                doc.setFontSize(12);
+                doc.text(`दिनांक: ${bakaya.date}`, 20, 50);
+                doc.text(`समय: ${bakaya.time}`, 120, 50);
+                
+                doc.setFontSize(16);
+                doc.text(`बकायाकर्ता: ${bakaya.name}`, 20, 80);
+                
+                doc.setFontSize(18);
+                doc.text(`बकाया राशि: ₹${bakaya.amount}`, 20, 110);
+                
+                if (bakaya.description) {
+                    doc.setFontSize(12);
+                    doc.text('विवरण:', 20, 140);
+                    doc.text(bakaya.description, 20, 155);
+                }
+                
+                doc.setFontSize(12);
+                doc.text('कृपया जल्दी भुगतान करें।', 20, 200);
+                doc.text('धन्यवाद! 🙏', 20, 220);
+                
+                // Save PDF
+                const fileName = `बकाया_${bakaya.name}_${bakaya.date.replace(/\//g, '-')}_${bakaya.id}.pdf`;
+                doc.save(fileName);
+                
+                showNotification('PDF डाउनलोड हो गई!');
+            } catch (error) {
+                showNotification('PDF बनाने में समस्या!', true);
+            }
+        }
+
+        function deleteBakaya(bakayaId) {
+            if (confirm('क्या आप वाकई इस बकाया एंट्री को हटाना चाहते हैं?')) {
+                bakayaHistory = bakayaHistory.filter(bakaya => bakaya.id !== bakayaId);
+                saveBakayaHistory();
+                displayBakayaHistory();
+                showNotification('बकाया एंट्री हटा दी गई!');
+            }
+        }
+
+        // Calculator functions
+        function openCalculator() {
+            document.getElementById('calculatorModal').classList.remove('hidden');
+            document.getElementById('calculatorModal').classList.add('flex');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            clearCalc();
+        }
+
+        function closeCalculator() {
+            document.getElementById('calculatorModal').classList.add('hidden');
+            document.getElementById('calculatorModal').classList.remove('flex');
+        }
+
+        function clearCalc() {
+            calcExpression = '';
+            calcResult = '';
+            document.getElementById('calcDisplay').value = '0';
+        }
+
+        function deleteLast() {
+            if (calcExpression.length > 0) {
+                calcExpression = calcExpression.slice(0, -1);
+                document.getElementById('calcDisplay').value = calcExpression || '0';
+            }
+        }
+
+        function appendToCalc(value) {
+            if (calcResult && !isNaN(value)) {
+                // If there's a result and user enters a number, start fresh
+                calcExpression = value;
+                calcResult = '';
+            } else if (calcResult && isNaN(value)) {
+                // If there's a result and user enters an operator, continue with result
+                calcExpression = calcResult + value;
+                calcResult = '';
+            } else {
+                calcExpression += value;
+            }
+            
+            document.getElementById('calcDisplay').value = calcExpression;
+        }
+
+        function calculateResult() {
+            if (!calcExpression) return;
+            
+            try {
+                // Replace display symbols with actual operators
+                let expression = calcExpression.replace(/×/g, '*').replace(/÷/g, '/');
+                
+                // Evaluate the expression safely
+                let result = Function('"use strict"; return (' + expression + ')')();
+                
+                if (isFinite(result)) {
+                    // Round to 2 decimal places if needed
+                    result = Math.round(result * 100) / 100;
+                    calcResult = result.toString();
+                    document.getElementById('calcDisplay').value = calcResult;
+                    
+                    // Store calculation history
+                    if (!window.calcHistory) window.calcHistory = [];
+                    window.calcHistory.push(`${calcExpression} = ${calcResult}`);
+                    if (window.calcHistory.length > 10) {
+                        window.calcHistory.shift();
+                    }
+                    
+                    calcExpression = calcResult; // Keep result for next calculation
+                } else {
+                    document.getElementById('calcDisplay').value = 'Error';
+                    calcExpression = '';
+                    calcResult = '';
+                }
+            } catch (error) {
+                document.getElementById('calcDisplay').value = 'Error';
+                calcExpression = '';
+                calcResult = '';
+            }
+        }
+
+        function checkTotal() {
+            const currentValue = document.getElementById('calcDisplay').value;
+            
+            if (currentValue && currentValue !== '0' && currentValue !== 'Error') {
+                // If there's an incomplete expression, calculate it first
+                if (calcExpression && calcExpression !== calcResult && calcExpression !== currentValue) {
+                    calculateResult();
+                    const finalValue = document.getElementById('calcDisplay').value;
+                    showNotification(`✓ चेक: ${calcExpression} = ₹${finalValue}`, false);
+                } else {
+                    // Show step-by-step if there's history
+                    if (window.calcHistory && window.calcHistory.length > 0) {
+                        const lastCalc = window.calcHistory[window.calcHistory.length - 1];
+                        showNotification(`✓ चेक: ${lastCalc}`, false);
+                    } else {
+                        showNotification(`✓ चेक: ₹${currentValue}`, false);
+                    }
+                }
+            } else {
+                showNotification('कोई वैल्यू नहीं मिली!', true);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('menuDropdown');
+            const longPressMenu = document.getElementById('longPressMenu');
+            
+            if (!e.target.closest('#menuDropdown') && !e.target.closest('button[onclick="toggleMenu()"]')) {
+                menu.classList.add('hidden');
+            }
+            
+            if (!e.target.closest('#longPressMenu')) {
+                hideLongPressMenu();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddModal();
+        });
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        document.getElementById('billModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBillModal();
+        });
+
+        document.getElementById('bakayaModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBakayaModal();
+        });
+
+        document.getElementById('billHistoryModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBillHistoryModal();
+        });
+
+        document.getElementById('bakayaHistoryModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBakayaHistoryModal();
+        });
+
+        document.getElementById('calculatorModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCalculator();
+        });
+
+        // Keyboard support for calculator
+        document.addEventListener('keydown', function(e) {
+            const calcModal = document.getElementById('calculatorModal');
+            if (!calcModal.classList.contains('hidden')) {
+                e.preventDefault();
+                
+                if (e.key >= '0' && e.key <= '9') {
+                    appendToCalc(e.key);
+                } else if (e.key === '.') {
+                    appendToCalc('.');
+                } else if (e.key === '+') {
+                    appendToCalc('+');
+                } else if (e.key === '-') {
+                    appendToCalc('-');
+                } else if (e.key === '*') {
+                    appendToCalc('×');
+                } else if (e.key === '/') {
+                    appendToCalc('÷');
+                } else if (e.key === 'Enter' || e.key === '=') {
+                    calculateResult();
+                } else if (e.key === 'Escape') {
+                    closeCalculator();
+                } else if (e.key === 'Backspace') {
+                    deleteLast();
+                } else if (e.key === 'Delete' || e.key.toLowerCase() === 'c') {
+                    clearCalc();
+                }
+            }
+        });
+
+        // Theme functions
+        let currentTheme = 'auto';
+        
+        function toggleThemeMenu() {
+            const themeSubmenu = document.getElementById('themeSubmenu');
+            themeSubmenu.classList.toggle('hidden');
+        }
+        
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('selectedTheme', theme);
+            applyTheme(theme);
+            document.getElementById('themeSubmenu').classList.add('hidden');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            showNotification(`${getThemeName(theme)} थीम लगाई गई!`);
+        }
+        
+        function getThemeName(theme) {
+            const themeNames = {
+                'auto': 'ऑटो',
+                'light': 'लाइट',
+                'dark': 'डार्क',
+                'blue': 'ब्लू',
+                'green': 'ग्रीन',
+                'purple': 'पर्पल',
+                'red': 'रेड',
+                'orange': 'ऑरेंज',
+                'pink': 'पिंक',
+                'yellow': 'येलो',
+                'teal': 'टील'
+            };
+            return themeNames[theme] || theme;
+        }
+        
+        function applyTheme(theme) {
+            const body = document.body;
+            
+            // Remove all theme classes
+            body.className = body.className.replace(/theme-\w+/g, '');
+            
+            if (theme === 'auto') {
+                // Use system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    body.classList.add('dark');
+                } else {
+                    body.classList.remove('dark');
+                }
+            } else if (theme === 'dark') {
+                body.classList.add('dark');
+            } else if (theme === 'light') {
+                body.classList.remove('dark');
+            } else {
+                // Custom color themes
+                body.classList.add(`theme-${theme}`);
+                body.classList.remove('dark');
+            }
+        }
+        
+        // Shop name functions
+        function editShopName() {
+            const currentName = document.getElementById('shopTitle').textContent;
+            const newName = prompt('दुकान का नया नाम लिखें:', currentName);
+            
+            if (newName && newName.trim() !== '') {
+                document.getElementById('shopTitle').textContent = newName.trim();
+                localStorage.setItem('shopName', newName.trim());
+                showNotification('दुकान का नाम बदल दिया गया!');
+            }
+            document.getElementById('menuDropdown').classList.add('hidden');
+        }
+        
+        // Print all items function
+        function printAllItems() {
+            if (items.length === 0) {
+                showNotification('कोई वस्तु नहीं मिली!', true);
+                return;
+            }
+            
+            try {
+                const shopName = document.getElementById('shopTitle').textContent;
+                const now = new Date();
+                const printContent = generateAllItemsHTML(items, shopName, now.toLocaleDateString('hi-IN'), now.toLocaleTimeString('hi-IN'));
+
+                const safePrint = () => {
+                    const printWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+                    if (!printWindow) {
+                        showNotification('प्रिंट विंडो खोलने में समस्या!', true);
+                        return;
+                    }
+
+                    printWindow.document.open();
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                                <title>सभी वस्तु सूची</title>
+                                <meta charset="UTF-8">
+                                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+                                <style>
+                                    body { font-family: 'Noto Sans Devanagari', sans-serif; margin: 0; padding: 10px; }
+                                    @media print { body { margin: 0; } @page { margin: 0.5cm; } }
+                                </style>
+                            </head>
+                            <body>${printContent}</body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    setTimeout(() => {
+                        try {
+                            printWindow.focus();
+                            printWindow.print();
+                        } catch (e) {
+                            console.error('Print error:', e);
+                        }
+                    }, 1000);
+                    
+                    showNotification('प्रिंट विंडो तैयार!');
+                };
+
+                safePrint();
+            } catch (error) {
+                console.error('Print all items error:', error);
+                showNotification('प्रिंट करने में समस्या!', true);
+            }
+            
+            document.getElementById('menuDropdown').classList.add('hidden');
+        }
+        
+        function generateAllItemsHTML(items, shopName, date, time) {
+            return `
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">${shopName}</h1>
+                        <p style="margin: 5px 0; font-size: 16px;">सभी वस्तुओं की सूची</p>
+                        <p style="margin: 5px 0; font-size: 12px;">दिनांक: ${date} | समय: ${time}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-size: 16px; font-weight: bold;">कुल वस्तुएं: ${items.length}</p>
+                    </div>
+                    
+                    ${items.map((item, index) => `
+                        <div style="border: 1px solid #ccc; margin-bottom: 15px; padding: 15px; border-radius: 8px;">
+                            <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold; color: #333;">${index + 1}. ${item.name}</h3>
+                            ${item.varieties.map(variety => `
+                                <div style="margin-left: 20px; margin-bottom: 8px; padding: 8px; background-color: #f9f9f9; border-left: 3px solid #007bff;">
+                                    ${variety.name !== 'सामान्य' ? `<div style="font-weight: bold; margin-bottom: 5px; color: #555;">${variety.name}</div>` : ''}
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        ${variety.rates.map(rateInfo => `
+                                            <span style="background-color: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 14px; font-weight: bold;">
+                                                ₹${rateInfo.rate} ${rateInfo.unit}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                    
+                    <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #666; border-top: 1px solid #ccc; padding-top: 15px;">
+                        <p style="margin: 0;">दुकान रेट ऐप द्वारा तैयार</p>
+                        <p style="margin: 5px 0;">धन्यवाद! 🙏</p>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // Back button functionality
+        function handleBackButton() {
+            // Close any open modals
+            const modals = ['addModal', 'editModal', 'billModal', 'bakayaModal', 'billHistoryModal', 'bakayaHistoryModal', 'calculatorModal'];
+            let modalClosed = false;
+            
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    modalClosed = true;
+                }
+            });
+            
+            // Close menus
+            const menu = document.getElementById('menuDropdown');
+            const themeMenu = document.getElementById('themeSubmenu');
+            if (!menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                modalClosed = true;
+            }
+            if (!themeMenu.classList.contains('hidden')) {
+                themeMenu.classList.add('hidden');
+                modalClosed = true;
+            }
+            
+            return modalClosed;
+        }
+
+        // Handle browser back button
+        window.addEventListener('popstate', function(e) {
+            if (handleBackButton()) {
+                history.pushState(null, null, location.href);
+            }
+        });
+
+        // Initialize the app when page loads
+        window.addEventListener('load', function() {
+            try {
+                initApp();
+                // Push initial state for back button handling
+                history.pushState(null, null, location.href);
+            } catch (error) {
+                console.error('App initialization error:', error);
+                showNotification('ऐप लोड करने में समस्या', true);
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c607707300444f',t:'MTc1NDcyOTY2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
