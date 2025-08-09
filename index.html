@@ -17,38 +17,7 @@
             font-family: 'Noto Sans Devanagari', sans-serif;
         }
         
-        .alphabet-overlay {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px 0 0 10px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .alphabet-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .alphabet-scroll {
-            position: fixed;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .alphabet-scroll.show {
+        #scrollButton.show {
             opacity: 1;
             visibility: visible;
         }
@@ -161,6 +130,31 @@
         .theme-grayscale .fullscreen-modal {
             background: white !important;
         }
+
+        /* Custom scrollbar styles */
+        .items-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .items-container::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+        
+        .items-container::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        
+        .items-container::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+        
+        /* Touch scroll styles */
+        .items-container {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-300">
@@ -272,7 +266,7 @@
             <div class="relative">
                 <input type="text" id="searchInput" placeholder="वस्तु खोजें..." 
                        class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                       oninput="searchItems()" onfocus="showAlphabetScroll()" onblur="hideAlphabetScroll()">
+                       oninput="searchItems()">
                 <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
@@ -280,31 +274,39 @@
         </div>
 
         <!-- Items List -->
-        <div class="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
-            <div id="itemsList">
-                <!-- Items will be displayed here -->
+        <div class="relative">
+            <div id="itemsContainer" class="items-container space-y-4 max-h-[calc(100vh-200px)] overflow-y-scroll pr-2" style="scrollbar-width: thin; scrollbar-color: #3b82f6 #e5e7eb;" onscroll="showScrollButton()">
+                <div id="itemsList">
+                    <!-- Items will be displayed here -->
+                </div>
+                <div id="emptyState" class="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
+                    <div class="text-4xl mb-2">📝</div>
+                    <p class="font-medium">कोई वस्तु नहीं मिली</p>
+                    <p class="text-sm">ऊपर मेन्यू से नई वस्तु जोड़ें</p>
+                </div>
+                <div id="noResults" class="hidden text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
+                    <div class="text-3xl mb-2">🔍</div>
+                    <p>कोई परिणाम नहीं मिला</p>
+                </div>
             </div>
-            <div id="emptyState" class="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
-                <div class="text-4xl mb-2">📝</div>
-                <p class="font-medium">कोई वस्तु नहीं मिली</p>
-                <p class="text-sm">ऊपर मेन्यू से नई वस्तु जोड़ें</p>
-            </div>
-            <div id="noResults" class="hidden text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-300">
-                <div class="text-3xl mb-2">🔍</div>
-                <p>कोई परिणाम नहीं मिला</p>
+            
+            <!-- Scroll Buttons -->
+            <div id="scrollButton" class="fixed right-4 bottom-20 flex flex-col space-y-2 opacity-0 visibility-hidden transition-all duration-300 z-40">
+                <button onclick="scrollToTop()" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition duration-200" title="ऊपर जाएं">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+                <button onclick="scrollToBottom()" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition duration-200" title="नीचे जाएं">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Alphabet Scroll -->
-    <div id="alphabetScroll" class="alphabet-scroll flex flex-col space-y-1">
-        <!-- Alphabet buttons will be generated here -->
-    </div>
 
-    <!-- Alphabet Overlay -->
-    <div id="alphabetOverlay" class="alphabet-overlay">
-        <div id="currentLetter" class="text-2xl font-bold"></div>
-    </div>
 
     <!-- Long Press Menu -->
     <div id="longPressMenu" class="long-press-menu hidden">
@@ -410,16 +412,31 @@
                     <!-- Bill items will be added here -->
                 </div>
                 
-                <div class="flex space-x-2 mb-6">
-                    <input type="number" id="billAmount" placeholder="₹ रुपये *" required
-                           class="w-24 px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                           onkeypress="if(event.key==='Enter') focusProductInput()">
-                    <input type="text" id="billProduct" placeholder="सामान का नाम (वैकल्पिक)" 
-                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                           onkeypress="if(event.key==='Enter') addBillItem()">
-                    <button onclick="addBillItem()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                        ➕
-                    </button>
+                <div class="space-y-3 mb-6">
+                    <div class="flex space-x-2">
+                        <input type="number" id="billAmount" placeholder="₹ रुपये *" required
+                               class="w-24 px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                               oninput="showNextBillInput()" onkeypress="if(event.key==='Enter') focusProductInput()">
+                        <input type="text" id="billProduct" placeholder="सामान का नाम (वैकल्पिक)" 
+                               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                               onkeypress="if(event.key==='Enter') addBillItem()">
+                    </div>
+                    <div id="nextBillInput" class="hidden flex space-x-2">
+                        <input type="number" id="billAmount2" placeholder="₹ रुपये"
+                               class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                               oninput="showNextBillInput2()" onkeypress="if(event.key==='Enter') focusProductInput2()">
+                        <input type="text" id="billProduct2" placeholder="सामान का नाम (वैकल्पिक)" 
+                               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                               onkeypress="if(event.key==='Enter') addBillItem2()">
+                    </div>
+                    <div id="nextBillInput2" class="hidden flex space-x-2">
+                        <input type="number" id="billAmount3" placeholder="₹ रुपये"
+                               class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                               onkeypress="if(event.key==='Enter') focusProductInput3()">
+                        <input type="text" id="billProduct3" placeholder="सामान का नाम (वैकल्पिक)" 
+                               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                               onkeypress="if(event.key==='Enter') addBillItem3()">
+                    </div>
                 </div>
                 
                 <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
@@ -639,10 +656,56 @@
                     <button onclick="appendToCalc('.')" class="calc-btn bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-semibold py-3 rounded-lg transition duration-200">.</button>
                 </div>
                 
-                <div class="mt-4">
-                    <button onclick="checkTotal()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                <div class="mt-4 flex space-x-2">
+                    <button onclick="checkTotal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
                         ✓ चेक
                     </button>
+                    <button onclick="showStepByStep()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        📊 स्टेप्स
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step by Step Modal -->
+    <div id="stepModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md transition-colors duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">📊 स्टेप बाई स्टेप</h3>
+                <button onclick="closeStepModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div id="currentStepDisplay" class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">0</div>
+                <div id="currentStepText" class="text-lg text-gray-800 dark:text-white">कोई स्टेप नहीं</div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="previousStep()" id="prevStepBtn" class="bg-gray-500 hover:bg-gray-600 text-white p-3 rounded-full transition duration-200 disabled:opacity-50" disabled>
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+                
+                <div class="text-center">
+                    <div id="stepCounter" class="text-sm text-gray-600 dark:text-gray-400">स्टेप 0 / 0</div>
+                </div>
+                
+                <button onclick="nextStep()" id="nextStepBtn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition duration-200 disabled:opacity-50" disabled>
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <div id="stepDetails" class="text-sm text-gray-600 dark:text-gray-300 text-center">
+                    पहले कैलकुलेटर में कुछ गणना करें
                 </div>
             </div>
         </div>
@@ -767,9 +830,8 @@
                 items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
                 filteredItems = [...items];
                 
-                // Display items and generate alphabet
+                // Display items
                 displayItems();
-                generateAlphabet();
                 
                 console.log('App initialized successfully');
             } catch (e) {
@@ -933,7 +995,6 @@
             saveToStorage();
             filteredItems = [...items];
             displayItems();
-            generateAlphabet();
             closeAddModal();
         }
 
@@ -1110,65 +1171,35 @@
         }
 
         // Alphabet scroll functions
-        function showAlphabetScroll() {
-            const alphabetScroll = document.getElementById('alphabetScroll');
-            alphabetScroll.classList.add('show');
-        }
-
-        function hideAlphabetScroll() {
-            setTimeout(() => {
-                const alphabetScroll = document.getElementById('alphabetScroll');
-                alphabetScroll.classList.remove('show');
+        let scrollButtonTimeout;
+        
+        function showScrollButton() {
+            const scrollButton = document.getElementById('scrollButton');
+            scrollButton.classList.add('show');
+            
+            // Clear existing timeout
+            if (scrollButtonTimeout) {
+                clearTimeout(scrollButtonTimeout);
+            }
+            
+            // Hide after 2 seconds of no scrolling
+            scrollButtonTimeout = setTimeout(() => {
+                scrollButton.classList.remove('show');
             }, 2000);
         }
 
-        function generateAlphabet() {
-            const alphabetScroll = document.getElementById('alphabetScroll');
-            const hindiAlphabet = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ए', 'ऐ', 'ओ', 'औ', 'क', 'ख', 'ग', 'घ', 'च', 'छ', 'ज', 'झ', 'ट', 'ठ', 'ड', 'ढ', 'त', 'थ', 'द', 'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह'];
-            const englishAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-            
-            const availableLetters = new Set();
-            items.forEach(item => {
-                const firstChar = item.name.charAt(0).toUpperCase();
-                availableLetters.add(firstChar);
-            });
-
-            const allLetters = [...hindiAlphabet, ...englishAlphabet];
-            
-            alphabetScroll.innerHTML = allLetters.map(letter => {
-                const isAvailable = availableLetters.has(letter);
-                return `
-                    <button ontouchstart="showLetterOverlay('${letter}')" ontouchend="hideLetterOverlay()" onclick="scrollToLetter('${letter}')" 
-                            class="w-6 h-6 text-xs font-medium rounded transition duration-200 ${
-                                isAvailable 
-                                    ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900' 
-                                    : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                            }"
-                            ${!isAvailable ? 'disabled' : ''}>
-                        ${letter}
-                    </button>
-                `;
-            }).join('');
+        function scrollToTop() {
+            const itemsList = document.getElementById('itemsContainer');
+            if (itemsList) {
+                itemsList.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
-        function showLetterOverlay(letter) {
-            const overlay = document.getElementById('alphabetOverlay');
-            const currentLetter = document.getElementById('currentLetter');
-            currentLetter.textContent = letter;
-            overlay.classList.add('show');
-        }
-
-        function hideLetterOverlay() {
-            setTimeout(() => {
-                const overlay = document.getElementById('alphabetOverlay');
-                overlay.classList.remove('show');
-            }, 100);
-        }
-
-        function scrollToLetter(letter) {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.value = letter;
-            searchItems();
+        function scrollToBottom() {
+            const itemsList = document.getElementById('itemsContainer');
+            if (itemsList) {
+                itemsList.scrollTo({ top: itemsList.scrollHeight, behavior: 'smooth' });
+            }
         }
 
         // Edit functions
@@ -1292,7 +1323,6 @@
             saveToStorage();
             filteredItems = [...items];
             displayItems();
-            generateAlphabet();
             closeEditModal();
             showNotification('वस्तु अपडेट हो गई!');
         }
@@ -1405,12 +1435,76 @@
             document.getElementById('billModal').classList.add('hidden');
             document.getElementById('billAmount').value = '';
             document.getElementById('billProduct').value = '';
+            document.getElementById('billAmount2').value = '';
+            document.getElementById('billProduct2').value = '';
+            document.getElementById('billAmount3').value = '';
+            document.getElementById('billProduct3').value = '';
+            document.getElementById('nextBillInput').classList.add('hidden');
+            document.getElementById('nextBillInput2').classList.add('hidden');
             currentReceiptItems = [];
             editingReceiptId = null;
         }
 
         function focusProductInput() {
             document.getElementById('billProduct').focus();
+        }
+
+        function focusProductInput2() {
+            document.getElementById('billProduct2').focus();
+        }
+
+        function focusProductInput3() {
+            document.getElementById('billProduct3').focus();
+        }
+
+        function showNextBillInput() {
+            const amount = document.getElementById('billAmount').value.trim();
+            if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+                document.getElementById('nextBillInput').classList.remove('hidden');
+            }
+        }
+
+        function showNextBillInput2() {
+            const amount = document.getElementById('billAmount2').value.trim();
+            if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+                document.getElementById('nextBillInput2').classList.remove('hidden');
+            }
+        }
+
+        function addBillItem2() {
+            const amount = document.getElementById('billAmount2').value.trim();
+            const product = document.getElementById('billProduct2').value.trim() || 'सामान';
+
+            if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+                return;
+            }
+
+            currentReceiptItems.push({
+                amount: parseFloat(amount),
+                product: product
+            });
+
+            document.getElementById('billAmount2').value = '';
+            document.getElementById('billProduct2').value = '';
+            updateReceiptDisplay();
+        }
+
+        function addBillItem3() {
+            const amount = document.getElementById('billAmount3').value.trim();
+            const product = document.getElementById('billProduct3').value.trim() || 'सामान';
+
+            if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+                return;
+            }
+
+            currentReceiptItems.push({
+                amount: parseFloat(amount),
+                product: product
+            });
+
+            document.getElementById('billAmount3').value = '';
+            document.getElementById('billProduct3').value = '';
+            updateReceiptDisplay();
         }
 
         function addBillItem() {
@@ -1621,55 +1715,34 @@
         function generateReceiptHTML(items, total, date, time) {
             const shopName = document.getElementById('shopTitle').textContent;
             return `
-                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 800px; margin: 0 auto; padding: 40px; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
-                    <!-- Header Section -->
-                    <div style="text-align: center; border-bottom: 4px solid #000; padding-bottom: 25px; margin-bottom: 30px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 10px;">
-                        <h1 style="margin: 0; font-size: 36px; font-weight: bold; color: #2c3e50;">${shopName}</h1>
-                        <p style="margin: 12px 0; font-size: 22px; color: #34495e; font-weight: 600;">📄 पर्ची/रसीद</p>
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background: white;">
+                    <!-- Header -->
+                    <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #333;">${shopName}</h1>
+                        <p style="margin: 8px 0; font-size: 16px; color: #666;">📄 पर्ची</p>
+                        <div style="font-size: 14px; color: #666;">📅 ${date} | 🕐 ${time}</div>
                     </div>
                     
-                    <!-- Date Time Section -->
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 5px solid #007bff;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600;">
-                            <div style="display: flex; align-items: center;">
-                                <span style="color: #007bff; margin-right: 8px;">📅</span>
-                                <span><strong>दिनांक:</strong> ${date}</span>
-                            </div>
-                            <div style="display: flex; align-items: center;">
-                                <span style="color: #007bff; margin-right: 8px;">🕐</span>
-                                <span><strong>समय:</strong> ${time}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Items Section -->
-                    <div style="background: white; border: 2px solid #dee2e6; border-radius: 10px; padding: 25px; margin-bottom: 25px;">
-                        <h3 style="margin: 0 0 20px 0; font-size: 20px; color: #495057; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">🛒 सामान की सूची</h3>
+                    <!-- Items -->
+                    <div style="margin-bottom: 20px;">
                         ${items.map((item, index) => `
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0; font-size: 18px; padding: 12px; background: ${index % 2 === 0 ? '#f8f9fa' : 'white'}; border-radius: 8px; border-left: 4px solid #007bff;">
-                                <div style="display: flex; align-items: center; flex: 1;">
-                                    <span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 50%; font-size: 14px; font-weight: bold; margin-right: 15px; min-width: 24px; text-align: center;">${index + 1}</span>
-                                    <span style="font-weight: 600; color: #007bff; min-width: 100px; font-size: 20px;">₹${item.amount}</span>
-                                </div>
-                                <div style="flex: 2; text-align: left; margin-left: 20px;">
-                                    <span style="color: #495057; font-size: 18px;">${item.product}</span>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                <div style="display: flex; align-items: center;">
+                                    <span style="margin-right: 10px; font-weight: bold; color: #007bff; min-width: 80px; text-align: left;">₹${item.amount}</span>
+                                    <span style="color: #333;">${item.product}</span>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                     
-                    <!-- Total Section -->
-                    <div style="text-align: center; background: linear-gradient(135deg, #28a745, #20c997); color: white; font-size: 28px; font-weight: bold; margin: 30px 0; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);">
-                        <div style="display: flex; justify-content: center; align-items: center;">
-                            <span style="margin-right: 10px; font-size: 32px;">💰</span>
-                            <span>कुल राशि: ₹${total}</span>
-                        </div>
+                    <!-- Total -->
+                    <div style="text-align: center; background: #007bff; color: white; font-size: 20px; font-weight: bold; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        कुल राशि: ₹${total}
                     </div>
                     
-                    <!-- Footer Section -->
-                    <div style="text-align: center; margin-top: 40px; padding: 25px; background: #f8f9fa; border-radius: 10px; border-top: 3px solid #007bff;">
-                        <p style="margin: 0; font-size: 18px; color: #495057; font-weight: 600;">धन्यवाद</p>
-                        <p style="margin: 12px 0; font-size: 24px;">🙏</p>
+                    <!-- Footer -->
+                    <div style="text-align: center; margin-top: 20px; font-size: 16px; color: #666;">
+                        <p style="margin: 0;">धन्यवाद 🙏</p>
                     </div>
                 </div>
             `;
@@ -2046,61 +2119,35 @@
         function generateBakayaHTML(name, amount, description, date, time) {
             const shopName = document.getElementById('shopTitle').textContent;
             return `
-                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 800px; margin: 0 auto; padding: 40px; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
-                    <!-- Header Section -->
-                    <div style="text-align: center; border-bottom: 4px solid #dc3545; padding-bottom: 25px; margin-bottom: 30px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 10px;">
-                        <h1 style="margin: 0; font-size: 36px; font-weight: bold; color: #2c3e50;">${shopName}</h1>
-                        <p style="margin: 12px 0; font-size: 22px; color: #dc3545; font-weight: 600;">💰 बकाया रसीद</p>
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background: white;">
+                    <!-- Header -->
+                    <div style="text-align: center; border-bottom: 2px solid #dc3545; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #333;">${shopName}</h1>
+                        <p style="margin: 8px 0; font-size: 16px; color: #dc3545;">💰 बकाया रसीद</p>
+                        <div style="font-size: 14px; color: #666;">📅 ${date} | 🕐 ${time}</div>
                     </div>
                     
-                    <!-- Date Time Section -->
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 5px solid #dc3545;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600;">
-                            <div style="display: flex; align-items: center;">
-                                <span style="color: #dc3545; margin-right: 8px;">📅</span>
-                                <span><strong>दिनांक:</strong> ${date}</span>
-                            </div>
-                            <div style="display: flex; align-items: center;">
-                                <span style="color: #dc3545; margin-right: 8px;">🕐</span>
-                                <span><strong>समय:</strong> ${time}</span>
-                            </div>
+                    <!-- Customer Details -->
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+                        <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">
+                            👤 ${name}
                         </div>
-                    </div>
-                    
-                    <!-- Customer Details Section -->
-                    <div style="background: white; border: 2px solid #dee2e6; border-radius: 10px; padding: 25px; margin-bottom: 25px;">
-                        <h3 style="margin: 0 0 20px 0; font-size: 20px; color: #495057; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">👤 बकायाकर्ता विवरण</h3>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545;">
-                            <div style="font-size: 22px; font-weight: bold; color: #2c3e50; margin-bottom: 15px;">
-                                <span style="color: #dc3545; margin-right: 10px;">👤</span>${name}
+                        ${description ? `
+                            <div style="font-size: 14px; color: #666; margin-top: 10px;">
+                                📝 ${description}
                             </div>
-                            ${description ? `
-                                <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #dee2e6;">
-                                    <strong style="font-size: 16px; color: #495057;">📝 विवरण:</strong><br>
-                                    <span style="font-size: 16px; margin-top: 8px; display: block; color: #6c757d; line-height: 1.5;">${description}</span>
-                                </div>
-                            ` : ''}
-                        </div>
+                        ` : ''}
                     </div>
                     
-                    <!-- Amount Section -->
-                    <div style="text-align: center; background: linear-gradient(135deg, #dc3545, #c82333); color: white; font-size: 32px; font-weight: bold; margin: 30px 0; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);">
-                        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-                            <div style="font-size: 20px; margin-bottom: 10px; opacity: 0.9;">बकाया राशि</div>
-                            <div style="display: flex; align-items: center;">
-                                <span style="margin-right: 15px; font-size: 36px;">💸</span>
-                                <span style="font-size: 36px;">₹${amount}</span>
-                            </div>
-                        </div>
+                    <!-- Amount -->
+                    <div style="text-align: center; background: #dc3545; color: white; font-size: 24px; font-weight: bold; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <div style="font-size: 16px; margin-bottom: 8px;">बकाया राशि</div>
+                        <div style="font-size: 36px; font-weight: 900;">₹${amount}</div>
                     </div>
                     
-
-                    
-                    <!-- Footer Section -->
-                    <div style="text-align: center; margin-top: 40px; padding: 25px; background: #f8f9fa; border-radius: 10px; border-top: 3px solid #dc3545;">
-                        <p style="margin: 0; font-size: 18px; color: #495057; font-weight: 600;">धन्यवाद! फिर आइएगा</p>
-                        <p style="margin: 12px 0; font-size: 24px;">🙏</p>
-                        <p style="margin: 0; font-size: 14px; color: #6c757d;">दुकान रेट ऐप द्वारा तैयार</p>
+                    <!-- Footer -->
+                    <div style="text-align: center; margin-top: 20px; font-size: 16px; color: #666;">
+                        <p style="margin: 0;">धन्यवाद 🙏</p>
                     </div>
                 </div>
             `;
@@ -2307,6 +2354,7 @@
             calcExpression = '';
             calcResult = '';
             calcSteps = [];
+            calcStepDetails = [];
             currentStepIndex = 0;
             document.getElementById('calcDisplay').value = '0';
             updateCalcHistory();
@@ -2368,30 +2416,72 @@
         }
 
         let calcSteps = [];
+        let calcStepDetails = [];
         let currentStepIndex = 0;
 
         function checkTotal() {
+            const currentValue = document.getElementById('calcDisplay').value;
+            if (currentValue && currentValue !== '0' && currentValue !== 'Error') {
+                showNotification(`✓ चेक: ₹${currentValue}`, false);
+            } else {
+                showNotification('कोई वैल्यू नहीं मिली!', true);
+            }
+        }
+
+        function showStepByStep() {
             if (calcSteps.length === 0) {
-                const currentValue = document.getElementById('calcDisplay').value;
-                if (currentValue && currentValue !== '0' && currentValue !== 'Error') {
-                    showNotification(`✓ चेक: ₹${currentValue}`, false);
-                } else {
-                    showNotification('कोई वैल्यू नहीं मिली!', true);
-                }
+                showNotification('पहले कुछ गणना करें!', true);
                 return;
             }
             
-            // Show current step
-            if (currentStepIndex < calcSteps.length) {
-                const step = calcSteps[currentStepIndex];
-                showNotification(`स्टेप ${currentStepIndex + 1}: ${step}`, false);
+            currentStepIndex = 0;
+            document.getElementById('stepModal').classList.remove('hidden');
+            document.getElementById('stepModal').classList.add('flex');
+            updateStepDisplay();
+        }
+
+        function closeStepModal() {
+            document.getElementById('stepModal').classList.add('hidden');
+            document.getElementById('stepModal').classList.remove('flex');
+        }
+
+        function updateStepDisplay() {
+            if (calcSteps.length === 0) {
+                document.getElementById('currentStepDisplay').textContent = '0';
+                document.getElementById('currentStepText').textContent = 'कोई स्टेप नहीं';
+                document.getElementById('stepCounter').textContent = 'स्टेप 0 / 0';
+                document.getElementById('stepDetails').textContent = 'पहले कैलकुलेटर में कुछ गणना करें';
+                document.getElementById('prevStepBtn').disabled = true;
+                document.getElementById('nextStepBtn').disabled = true;
+                return;
+            }
+
+            const step = calcStepDetails[currentStepIndex];
+            document.getElementById('currentStepDisplay').textContent = step.result;
+            document.getElementById('currentStepText').textContent = step.expression;
+            document.getElementById('stepCounter').textContent = `स्टेप ${currentStepIndex + 1} / ${calcSteps.length}`;
+            document.getElementById('stepDetails').innerHTML = `
+                <div class="text-lg font-semibold mb-2">${step.expression}</div>
+                <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">= ${step.result}</div>
+                <div class="text-sm mt-2 text-gray-500 dark:text-gray-400">${step.timestamp}</div>
+            `;
+
+            // Update button states
+            document.getElementById('prevStepBtn').disabled = currentStepIndex === 0;
+            document.getElementById('nextStepBtn').disabled = currentStepIndex === calcSteps.length - 1;
+        }
+
+        function previousStep() {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                updateStepDisplay();
+            }
+        }
+
+        function nextStep() {
+            if (currentStepIndex < calcSteps.length - 1) {
                 currentStepIndex++;
-            } else {
-                // Reset to beginning
-                currentStepIndex = 0;
-                const step = calcSteps[currentStepIndex];
-                showNotification(`स्टेप ${currentStepIndex + 1}: ${step}`, false);
-                currentStepIndex++;
+                updateStepDisplay();
             }
         }
 
@@ -2407,9 +2497,17 @@
         }
 
         function addCalcStep(expression, result) {
+            const timestamp = new Date().toLocaleTimeString('hi-IN');
             calcSteps.push(`${expression} = ${result}`);
+            calcStepDetails.push({
+                expression: expression,
+                result: result,
+                timestamp: timestamp
+            });
+            
             if (calcSteps.length > 10) {
                 calcSteps.shift();
+                calcStepDetails.shift();
             }
             updateCalcHistory();
         }
@@ -2526,64 +2624,87 @@
             const themeSubmenu = document.getElementById('themeSubmenu');
             const deleteSubmenu = document.getElementById('deleteSubmenu');
             
+            // Close main menu
             if (!e.target.closest('#menuDropdown') && !e.target.closest('button[onclick="toggleMenu()"]')) {
-                menu.classList.add('hidden');
-                themeSubmenu.classList.add('hidden');
-                deleteSubmenu.classList.add('hidden');
+                if (menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    themeSubmenu.classList.add('hidden');
+                    deleteSubmenu.classList.add('hidden');
+                }
             }
             
+            // Close add menu
             if (!e.target.closest('#addMenuDropdown') && !e.target.closest('button[onclick="toggleAddMenu()"]')) {
-                addMenu.classList.add('hidden');
+                if (addMenu && !addMenu.classList.contains('hidden')) {
+                    addMenu.classList.add('hidden');
+                }
             }
             
+            // Close long press menu
             if (!e.target.closest('#longPressMenu')) {
                 hideLongPressMenu();
             }
             
+            // Close theme submenu
             if (!e.target.closest('#themeSubmenu') && !e.target.closest('button[onclick="toggleThemeMenu()"]')) {
-                themeSubmenu.classList.add('hidden');
+                if (themeSubmenu && !themeSubmenu.classList.contains('hidden')) {
+                    themeSubmenu.classList.add('hidden');
+                }
             }
             
+            // Close delete submenu
             if (!e.target.closest('#deleteSubmenu') && !e.target.closest('button[onclick="toggleDeleteMenu()"]')) {
-                deleteSubmenu.classList.add('hidden');
+                if (deleteSubmenu && !deleteSubmenu.classList.contains('hidden')) {
+                    deleteSubmenu.classList.add('hidden');
+                }
             }
         });
 
-        // Close modals when clicking outside
-        document.getElementById('addModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAddModal();
-        });
+        // Close modals when clicking outside - with proper event handling
+        function setupModalCloseEvents() {
+            const modals = [
+                { id: 'addModal', closeFunc: closeAddModal },
+                { id: 'editModal', closeFunc: closeEditModal },
+                { id: 'billModal', closeFunc: closeBillModal },
+                { id: 'bakayaModal', closeFunc: closeBakayaModal },
+                { id: 'billHistoryModal', closeFunc: closeBillHistoryModal },
+                { id: 'bakayaHistoryModal', closeFunc: closeBakayaHistoryModal },
+                { id: 'calculatorModal', closeFunc: closeCalculator },
+                { id: 'allItemsModal', closeFunc: closeAllItemsView },
+                { id: 'stepModal', closeFunc: closeStepModal }
+            ];
 
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) closeEditModal();
-        });
+            modals.forEach(modal => {
+                const element = document.getElementById(modal.id);
+                if (element) {
+                    // Remove any existing listeners first
+                    element.removeEventListener('click', element._modalClickHandler);
+                    
+                    // Create new handler
+                    element._modalClickHandler = function(e) {
+                        if (e.target === this || e.target.classList.contains('modal-backdrop')) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            modal.closeFunc();
+                        }
+                    };
+                    
+                    element.addEventListener('click', element._modalClickHandler);
+                }
+            });
+        }
 
-        document.getElementById('billModal').addEventListener('click', function(e) {
-            if (e.target === this) closeBillModal();
-        });
-
-        document.getElementById('bakayaModal').addEventListener('click', function(e) {
-            if (e.target === this) closeBakayaModal();
-        });
-
-        document.getElementById('billHistoryModal').addEventListener('click', function(e) {
-            if (e.target === this) closeBillHistoryModal();
-        });
-
-        document.getElementById('bakayaHistoryModal').addEventListener('click', function(e) {
-            if (e.target === this) closeBakayaHistoryModal();
-        });
-
-        document.getElementById('calculatorModal').addEventListener('click', function(e) {
-            if (e.target === this) closeCalculator();
-        });
-
-        document.getElementById('allItemsModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAllItemsView();
-        });
-
-        // Keyboard support for calculator
+        // Keyboard support for calculator and general escape handling
         document.addEventListener('keydown', function(e) {
+            // Handle escape key for all modals and menus
+            if (e.key === 'Escape') {
+                if (handleBackButton()) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+            
+            // Calculator specific keys
             const calcModal = document.getElementById('calculatorModal');
             if (!calcModal.classList.contains('hidden')) {
                 e.preventDefault();
@@ -2926,27 +3047,24 @@
 
         // Back button functionality
         function handleBackButton() {
-            // Close any open modals
-            const modals = ['addModal', 'editModal', 'billModal', 'bakayaModal', 'billHistoryModal', 'bakayaHistoryModal', 'calculatorModal', 'allItemsModal'];
             let modalClosed = false;
+            
+            // Close any open modals
+            const modals = ['addModal', 'editModal', 'billModal', 'bakayaModal', 'billHistoryModal', 'bakayaHistoryModal', 'calculatorModal', 'allItemsModal', 'stepModal'];
             
             modals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && !modal.classList.contains('hidden')) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    
                     // Call specific close functions to clean up
-                    if (modalId === 'addModal') closeAddModal();
-                    else if (modalId === 'editModal') closeEditModal();
-                    else if (modalId === 'billModal') closeBillModal();
-                    else if (modalId === 'bakayaModal') closeBakayaModal();
-                    else if (modalId === 'billHistoryModal') closeBillHistoryModal();
-                    else if (modalId === 'bakayaHistoryModal') closeBakayaHistoryModal();
-                    else if (modalId === 'calculatorModal') closeCalculator();
-                    else if (modalId === 'allItemsModal') closeAllItemsView();
-                    
-                    modalClosed = true;
+                    if (modalId === 'addModal') { closeAddModal(); modalClosed = true; }
+                    else if (modalId === 'editModal') { closeEditModal(); modalClosed = true; }
+                    else if (modalId === 'billModal') { closeBillModal(); modalClosed = true; }
+                    else if (modalId === 'bakayaModal') { closeBakayaModal(); modalClosed = true; }
+                    else if (modalId === 'billHistoryModal') { closeBillHistoryModal(); modalClosed = true; }
+                    else if (modalId === 'bakayaHistoryModal') { closeBakayaHistoryModal(); modalClosed = true; }
+                    else if (modalId === 'calculatorModal') { closeCalculator(); modalClosed = true; }
+                    else if (modalId === 'allItemsModal') { closeAllItemsView(); modalClosed = true; }
+                    else if (modalId === 'stepModal') { closeStepModal(); modalClosed = true; }
                 }
             });
             
@@ -2954,27 +3072,53 @@
             const menu = document.getElementById('menuDropdown');
             const addMenu = document.getElementById('addMenuDropdown');
             const themeMenu = document.getElementById('themeSubmenu');
+            const deleteMenu = document.getElementById('deleteSubmenu');
+            const searchBar = document.getElementById('searchBar');
             
-            if (!menu.classList.contains('hidden')) {
+            if (menu && !menu.classList.contains('hidden')) {
                 menu.classList.add('hidden');
                 modalClosed = true;
             }
-            if (!addMenu.classList.contains('hidden')) {
+            if (addMenu && !addMenu.classList.contains('hidden')) {
                 addMenu.classList.add('hidden');
                 modalClosed = true;
             }
-            if (!themeMenu.classList.contains('hidden')) {
+            if (themeMenu && !themeMenu.classList.contains('hidden')) {
                 themeMenu.classList.add('hidden');
                 modalClosed = true;
             }
+            if (deleteMenu && !deleteMenu.classList.contains('hidden')) {
+                deleteMenu.classList.add('hidden');
+                modalClosed = true;
+            }
+            if (searchBar && !searchBar.classList.contains('hidden')) {
+                toggleSearch();
+                modalClosed = true;
+            }
+            
+            // Hide long press menu
+            hideLongPressMenu();
             
             return modalClosed;
         }
 
         // Handle browser back button
         window.addEventListener('popstate', function(e) {
+            e.preventDefault();
             if (handleBackButton()) {
-                history.pushState(null, null, location.href);
+                // Push state again to prevent actual navigation
+                setTimeout(() => {
+                    history.pushState(null, null, location.href);
+                }, 10);
+            }
+        });
+
+        // Prevent back navigation on Android
+        window.addEventListener('beforeunload', function(e) {
+            if (handleBackButton()) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
             }
         });
 
@@ -3132,6 +3276,7 @@
         window.addEventListener('load', function() {
             try {
                 initApp();
+                setupModalCloseEvents();
                 // Push initial state for back button handling
                 history.pushState(null, null, location.href);
                 
@@ -3151,5 +3296,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c6f4f6247531be',t:'MTc1NDczOTM5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c7a5d7a31c46a7',t:'MTc1NDc0NjY0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
