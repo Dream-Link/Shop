@@ -114,31 +114,50 @@
         }
 
         /* Theme styles */
-        .theme-blue { --theme-primary: #3b82f6; --theme-bg: #eff6ff; }
-        .theme-green { --theme-primary: #10b981; --theme-bg: #ecfdf5; }
-        .theme-purple { --theme-primary: #8b5cf6; --theme-bg: #f3e8ff; }
-        .theme-red { --theme-primary: #ef4444; --theme-bg: #fef2f2; }
-        .theme-orange { --theme-primary: #f97316; --theme-bg: #fff7ed; }
-        .theme-pink { --theme-primary: #ec4899; --theme-bg: #fdf2f8; }
-        .theme-yellow { --theme-primary: #eab308; --theme-bg: #fefce8; }
-        .theme-teal { --theme-primary: #14b8a6; --theme-bg: #f0fdfa; }
-
-        [class*="theme-"] {
-            background: var(--theme-bg) !important;
+        .theme-grayscale {
+            filter: grayscale(100%);
         }
 
-        [class*="theme-"] .bg-blue-600,
-        [class*="theme-"] .bg-blue-500 {
-            background-color: var(--theme-primary) !important;
+        .theme-light {
+            background: #f8fafc !important;
+            color: #1f2937 !important;
         }
 
-        [class*="theme-"] .text-blue-600,
-        [class*="theme-"] .text-blue-500 {
-            color: var(--theme-primary) !important;
+        .theme-dark {
+            background: #1f2937 !important;
+            color: #f9fafb !important;
         }
 
-        [class*="theme-"] .border-blue-500 {
-            border-color: var(--theme-primary) !important;
+        .theme-dark .bg-white {
+            background: #374151 !important;
+        }
+
+        .theme-dark .text-gray-800 {
+            color: #f9fafb !important;
+        }
+
+        .theme-dark .border-gray-200 {
+            border-color: #4b5563 !important;
+        }
+
+        /* Full screen modal styles */
+        .fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .theme-dark .fullscreen-modal {
+            background: #1f2937 !important;
+        }
+
+        .theme-grayscale .fullscreen-modal {
+            background: white !important;
         }
     </style>
 </head>
@@ -159,17 +178,9 @@
                         </svg>
                     </button>
                     <div id="menuDropdown" class="hidden absolute left-0 top-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-600 w-56 z-50">
-                        <button onclick="openBillModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
-                            <span>📄</span>
-                            <span>पर्ची बनाएं</span>
-                        </button>
                         <button onclick="openCalculator()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
                             <span>🧮</span>
                             <span>कैलकुलेटर</span>
-                        </button>
-                        <button onclick="openBakayaModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
-                            <span>💰</span>
-                            <span>बकाया</span>
                         </button>
                         <hr class="border-gray-200 dark:border-gray-600">
                         <button onclick="openBillHistory()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
@@ -180,9 +191,9 @@
                             <span>💳</span>
                             <span>बकाया हिस्ट्री</span>
                         </button>
-                        <button onclick="printAllItems()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
-                            <span>🖨️</span>
-                            <span>सभी वस्तु प्रिंट</span>
+                        <button onclick="openAllItemsView()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                            <span>📋</span>
+                            <span>सभी वस्तु देखें</span>
                         </button>
                         <hr class="border-gray-200 dark:border-gray-600">
                         <button onclick="editShopName()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
@@ -201,14 +212,7 @@
                                 <button onclick="setTheme('auto')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔄 ऑटो</button>
                                 <button onclick="setTheme('light')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">☀️ लाइट</button>
                                 <button onclick="setTheme('dark')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🌙 डार्क</button>
-                                <button onclick="setTheme('blue')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔵 ब्लू</button>
-                                <button onclick="setTheme('green')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟢 ग्रीन</button>
-                                <button onclick="setTheme('purple')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟣 पर्पल</button>
-                                <button onclick="setTheme('red')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔴 रेड</button>
-                                <button onclick="setTheme('orange')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟠 ऑरेंज</button>
-                                <button onclick="setTheme('pink')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🩷 पिंक</button>
-                                <button onclick="setTheme('yellow')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🟡 येलो</button>
-                                <button onclick="setTheme('teal')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">🔷 टील</button>
+                                <button onclick="setTheme('grayscale')" class="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-white">⚫ ग्रे स्केल</button>
                             </div>
                         </div>
                         <hr class="border-gray-200 dark:border-gray-600">
@@ -218,17 +222,30 @@
                         </button>
                     </div>
                 </div>
-                <div onclick="editShopName()" class="cursor-pointer">
-                    <h1 id="shopTitle" class="text-xl font-bold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">🏪 दुकान रेट</h1>
-                    <p class="text-gray-600 dark:text-gray-300 text-xs">कुल वस्तुएं: <span id="itemCount">0</span></p>
+                <div>
+                    <h1 id="shopTitle" class="text-xl font-bold text-gray-800 dark:text-white">🏪 दुकान रेट</h1>
                 </div>
             </div>
-            <div>
-                <button onclick="openAddModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200" title="नई वस्तु जोड़ें">
+            <div class="relative">
+                <button onclick="toggleAddMenu()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200" title="मेन्यू">
                     <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
                     </svg>
                 </button>
+                <div id="addMenuDropdown" class="hidden absolute right-0 top-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-600 w-48 z-50">
+                    <button onclick="openAddModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                        <span>➕</span>
+                        <span>सामान जोड़ें</span>
+                    </button>
+                    <button onclick="openBillModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                        <span>📄</span>
+                        <span>पर्ची बनाएं</span>
+                    </button>
+                    <button onclick="openBakayaModal()" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2 text-gray-800 dark:text-white">
+                        <span>💰</span>
+                        <span>बकाया लिखें</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -281,6 +298,10 @@
             <span>➕</span>
             <span>वैरायटी जोड़ें</span>
         </button>
+        <button onclick="showItemHistory()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2">
+            <span>📊</span>
+            <span>हिस्ट्री देखें</span>
+        </button>
         <button onclick="deleteItemFromMenu()" class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2 text-red-600 dark:text-red-400 rounded-b-xl">
             <span>🗑️</span>
             <span>हटाएं</span>
@@ -288,18 +309,22 @@
     </div>
 
     <!-- Add Item Modal -->
-    <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm transition-colors duration-300">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">नई वस्तु जोड़ें</h3>
-            
-            <div class="space-y-4">
+    <div id="addModal" class="hidden fullscreen-modal dark:bg-gray-800 transition-colors duration-300">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">नई वस्तु जोड़ें</h3>
+                <button onclick="closeAddModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4 max-w-md mx-auto">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">वस्तु का नाम</label>
                     <input type="text" id="itemName" placeholder="जैसे: चावल, दाल, चीनी..." 
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                 </div>
-                
-
 
                 <!-- Multiple Rate Inputs -->
                 <div id="rateInputs">
@@ -341,44 +366,55 @@
     </div>
 
     <!-- Bill Modal -->
-    <div id="billModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden transition-colors duration-300">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">📄 पर्ची बनाएं</h3>
+    <div id="billModal" class="hidden fullscreen-modal dark:bg-gray-800 transition-colors duration-300">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">📄 पर्ची बनाएं</h3>
+                <button onclick="closeBillModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            
-            <div class="p-4 max-h-[60vh] overflow-y-auto">
-                <div id="billItems" class="space-y-3">
+            <div class="max-w-md mx-auto">
+                <div id="billItems" class="space-y-3 mb-6">
                     <!-- Bill items will be added here -->
                 </div>
                 
-                <div class="flex space-x-2 mt-4">
+                <div class="flex space-x-2 mb-6">
                     <input type="number" id="billAmount" placeholder="₹ रुपये *" required
-                           class="w-24 px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                           class="w-24 px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                           onkeypress="if(event.key==='Enter') focusProductInput()">
                     <input type="text" id="billProduct" placeholder="सामान का नाम (वैकल्पिक)" 
-                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                           onkeypress="if(event.key==='Enter') addBillItem()">
                     <button onclick="addBillItem()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
                         ➕
                     </button>
                 </div>
-            </div>
-            
-            <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-lg font-semibold text-gray-800 dark:text-white">कुल राशि:</span>
-                    <span id="billTotal" class="text-xl font-bold text-blue-600 dark:text-blue-400">₹0</span>
-                </div>
                 
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="saveBill()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        💾 सेव
-                    </button>
-                    <button onclick="printBill()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        🖨️ प्रिंट
-                    </button>
-                    <button onclick="shareBillPDF()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        📤 शेयर
-                    </button>
+                <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold text-gray-800 dark:text-white">कुल राशि:</span>
+                        <span id="billTotal" class="text-xl font-bold text-blue-600 dark:text-blue-400">₹0</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button onclick="saveBill()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            💾 सेव
+                        </button>
+                        <button onclick="saveBillImage()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            📷 इमेज
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="printBill()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            🖨️ प्रिंट
+                        </button>
+                        <button onclick="shareBillPDF()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            📤 शेयर
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -414,10 +450,15 @@
             </div>
             
             <div class="p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
                     <button onclick="saveBakaya()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
                         💾 सेव करें
                     </button>
+                    <button onclick="saveBakayaImage()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        📷 इमेज
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
                     <button onclick="printBakaya()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
                         🖨️ प्रिंट
                     </button>
@@ -467,17 +508,63 @@
         </div>
     </div>
 
-    <!-- Calculator Modal -->
-    <div id="calculatorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-xs transition-colors duration-300">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-600">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">🧮 कैलकुलेटर</h3>
+    <!-- All Items View Modal -->
+    <div id="allItemsModal" class="hidden fullscreen-modal dark:bg-gray-800 transition-colors duration-300">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">📋 सभी वस्तु देखें</h3>
+                <button onclick="closeAllItemsView()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
             
-            <div class="p-4">
+            <div class="mb-4 text-center">
+                <span class="text-lg font-semibold text-blue-600 dark:text-blue-400">कुल वस्तुएं: <span id="totalItemsCount">0</span></span>
+            </div>
+            
+            <div class="mb-4 grid grid-cols-3 gap-2">
+                <button onclick="saveAllItemsImage()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    📷 इमेज
+                </button>
+                <button onclick="printAllItems()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    🖨️ प्रिंट
+                </button>
+                <button onclick="shareAllItemsPDF()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    📤 शेयर
+                </button>
+            </div>
+            
+            <div class="max-h-[70vh] overflow-y-auto">
+                <div id="allItemsList" class="space-y-3">
+                    <!-- All items will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="hidden fullscreen-modal dark:bg-gray-800 transition-colors duration-300">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white">🧮 कैलकुलेटर</h3>
+                <button onclick="closeCalculator()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition duration-200">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="max-w-sm mx-auto">
                 <div class="mb-4">
                     <input type="text" id="calcDisplay" readonly 
                            class="w-full px-4 py-3 text-right text-xl font-mono bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-white">
+                </div>
+                
+                <div class="mb-4 max-h-32 overflow-y-auto">
+                    <div id="calcHistory" class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                        <!-- Calculator history will appear here -->
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-4 gap-2">
@@ -565,21 +652,30 @@
                 clearTimeout(window.notificationTimeout);
             }
             
-            // Remove any existing classes and reset
+            // Force hide first
+            notification.style.transform = 'translateX(100%)';
+            notification.style.opacity = '0';
             notification.className = 'notification';
             
-            // Set message and show
-            notificationText.textContent = message;
-            notification.className = `notification ${isError ? 'error' : ''} show`;
-            
-            // Auto hide after 3 seconds
-            window.notificationTimeout = setTimeout(() => {
-                notification.classList.remove('show');
-                // Reset classes after animation
-                setTimeout(() => {
-                    notification.className = 'notification';
-                }, 300);
-            }, 3000);
+            // Small delay then show new notification
+            setTimeout(() => {
+                notificationText.textContent = message;
+                notification.className = `notification ${isError ? 'error' : ''}`;
+                notification.style.transform = 'translateX(0)';
+                notification.style.opacity = '1';
+                
+                // Auto hide after 2.5 seconds
+                window.notificationTimeout = setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+                    // Reset completely after animation
+                    setTimeout(() => {
+                        notification.className = 'notification';
+                        notification.style.transform = 'translateX(100%)';
+                        notification.style.opacity = '0';
+                    }, 300);
+                }, 2500);
+            }, 100);
         }
 
         // Initialize app
@@ -673,14 +769,12 @@
         // Add item functions
         function openAddModal() {
             document.getElementById('addModal').classList.remove('hidden');
-            document.getElementById('addModal').classList.add('flex');
-            document.getElementById('menuDropdown').classList.add('hidden');
+            document.getElementById('addMenuDropdown').classList.add('hidden');
             clearForm();
         }
 
         function closeAddModal() {
             document.getElementById('addModal').classList.add('hidden');
-            document.getElementById('addModal').classList.remove('flex');
             clearForm();
         }
 
@@ -725,7 +819,6 @@
 
         function addItem() {
             const name = document.getElementById('itemName').value.trim();
-            const varietyName = document.getElementById('varietyName').value.trim();
             const rateInputGroups = document.querySelectorAll('.rate-input-group');
 
             if (!name) {
@@ -742,7 +835,7 @@
                 
                 if (rateInput && !isNaN(rateInput) && parseFloat(rateInput) > 0) {
                     varieties.push({
-                        name: varietyRateName || varietyName || 'सामान्य',
+                        name: varietyRateName || 'सामान्य',
                         rates: [{
                             rate: parseFloat(rateInput),
                             unit: unitInput
@@ -775,6 +868,7 @@
                 showNotification('नई वस्तु जोड़ दी गई!');
             }
 
+            // Sort and update display
             items.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
             saveToStorage();
             filteredItems = [...items];
@@ -785,7 +879,6 @@
 
         function clearForm() {
             document.getElementById('itemName').value = '';
-            document.getElementById('varietyName').value = '';
             const rateInputs = document.getElementById('rateInputs');
             rateInputs.innerHTML = `
                 <div class="rate-input-group border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-3">
@@ -796,7 +889,7 @@
                     <div class="flex space-x-2">
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">रेट/भाव</label>
-                            <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="50">
+                            <input type="number" class="rate-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="">
                         </div>
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">यूनिट</label>
@@ -834,9 +927,6 @@
             const itemsList = document.getElementById('itemsList');
             const emptyState = document.getElementById('emptyState');
             const noResults = document.getElementById('noResults');
-            const itemCount = document.getElementById('itemCount');
-
-            itemCount.textContent = items.length;
 
             if (items.length === 0) {
                 itemsList.innerHTML = '';
@@ -1142,44 +1232,57 @@
 
         function deleteItem(index) {
             if (confirm('क्या आप वाकई इस वस्तु को हटाना चाहते हैं?')) {
-                items.splice(index, 1);
-                saveToStorage();
-                filteredItems = [...items];
-                displayItems();
-                generateAlphabet();
-                showNotification('वस्तु हटा दी गई!');
+                if (confirm('यह वस्तु पूरी तरह हट जाएगी! फिर से पुष्टि करें?')) {
+                    if (confirm('अंतिम चेतावनी! क्या आप वाकई हटाना चाहते हैं?')) {
+                        items.splice(index, 1);
+                        saveToStorage();
+                        filteredItems = [...items];
+                        displayItems();
+                        generateAlphabet();
+                        showNotification('वस्तु हटा दी गई!');
+                    }
+                }
             }
         }
 
         function clearAllItems() {
             if (confirm('क्या आप वाकई सभी वस्तुओं को हटाना चाहते हैं?')) {
-                items = [];
-                filteredItems = [];
-                saveToStorage();
-                displayItems();
-                generateAlphabet();
-                document.getElementById('menuDropdown').classList.add('hidden');
-                showNotification('सभी वस्तुएं हटा दी गईं!');
+                if (confirm('सभी डेटा खो जाएगा! फिर से पुष्टि करें?')) {
+                    if (confirm('अंतिम चेतावनी! सब कुछ हट जाएगा!')) {
+                        items = [];
+                        filteredItems = [];
+                        saveToStorage();
+                        displayItems();
+                        generateAlphabet();
+                        document.getElementById('menuDropdown').classList.add('hidden');
+                        showNotification('सभी वस्तुएं हटा दी गईं!');
+                    }
+                }
             }
         }
 
         // Receipt functions
         function openBillModal() {
             document.getElementById('billModal').classList.remove('hidden');
-            document.getElementById('billModal').classList.add('flex');
-            document.getElementById('menuDropdown').classList.add('hidden');
-            currentReceiptItems = [];
-            editingReceiptId = null;
+            document.getElementById('addMenuDropdown').classList.add('hidden');
+            if (!editingReceiptId) {
+                currentReceiptItems = [];
+                document.getElementById('billAmount').value = '';
+                document.getElementById('billProduct').value = '';
+            }
             updateReceiptDisplay();
         }
 
         function closeBillModal() {
             document.getElementById('billModal').classList.add('hidden');
-            document.getElementById('billModal').classList.remove('flex');
             document.getElementById('billAmount').value = '';
             document.getElementById('billProduct').value = '';
             currentReceiptItems = [];
             editingReceiptId = null;
+        }
+
+        function focusProductInput() {
+            document.getElementById('billProduct').focus();
         }
 
         function addBillItem() {
@@ -1203,6 +1306,7 @@
 
             document.getElementById('billAmount').value = '';
             document.getElementById('billProduct').value = '';
+            document.getElementById('billAmount').focus();
             updateReceiptDisplay();
         }
 
@@ -1226,9 +1330,9 @@
 
             billItems.innerHTML = currentReceiptItems.map((item, index) => `
                 <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                    <div class="flex-1">
-                        <span class="font-medium text-blue-600 dark:text-blue-400">₹${item.amount}</span>
-                        <span class="text-gray-800 dark:text-white ml-3">${item.product}</span>
+                    <div class="flex-1 flex items-center">
+                        <span class="font-medium text-blue-600 dark:text-blue-400 min-w-[60px]">₹${item.amount}</span>
+                        <span class="text-gray-800 dark:text-white ml-4">${item.product}</span>
                     </div>
                     <button onclick="removeBillItem(${index})" class="text-red-500 hover:bg-red-100 dark:hover:bg-red-900 p-1 rounded transition duration-200">
                         ❌
@@ -1353,8 +1457,9 @@
                 const now = new Date();
                 
                 // Add content to PDF
+                const shopName = document.getElementById('shopTitle').textContent;
                 doc.setFontSize(20);
-                doc.text('🏪 दुकान रेट - पर्ची', 20, 30);
+                doc.text(`${shopName} - पर्ची`, 20, 30);
                 
                 doc.setFontSize(12);
                 doc.text(`दिनांक: ${now.toLocaleDateString('hi-IN')}`, 20, 50);
@@ -1386,38 +1491,35 @@
         }
 
         function generateReceiptHTML(items, total, date, time) {
+            const shopName = document.getElementById('shopTitle').textContent;
             return `
-                <div style="font-family: 'Noto Sans Devanagari', sans-serif; max-width: 300px; margin: 0 auto; padding: 20px; border: 1px solid #000;">
-                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                        <h2 style="margin: 0; font-size: 20px; font-weight: bold;">🏪 दुकान रेट V3</h2>
-                        <p style="margin: 5px 0; font-size: 14px;">पर्ची/रसीद</p>
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 600px; margin: 0 auto; padding: 30px; border: 2px solid #000;">
+                    <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h2 style="margin: 0; font-size: 28px; font-weight: bold;">${shopName}</h2>
+                        <p style="margin: 8px 0; font-size: 18px;">पर्ची/रसीद</p>
                     </div>
                     
-                    <div style="margin-bottom: 15px; font-size: 12px; display: flex; justify-content: space-between;">
+                    <div style="margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between;">
                         <span><strong>दिनांक:</strong> ${date}</span>
                         <span><strong>समय:</strong> ${time}</span>
                     </div>
                     
-                    <div style="border-bottom: 1px solid #000; margin-bottom: 10px; padding-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 14px;">
-                            <span>राशि</span>
-                            <span>सामान</span>
-                        </div>
+                    <div style="border-bottom: 2px solid #000; margin-bottom: 15px; padding-bottom: 15px;">
                         ${items.map(item => `
-                            <div style="display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; border-bottom: 1px dotted #ccc; padding-bottom: 3px;">
-                                <span style="font-weight: bold;">₹${item.amount}</span>
-                                <span style="text-align: right; max-width: 60%;">${item.product}</span>
+                            <div style="display: flex; margin: 12px 0; font-size: 18px; border-bottom: 1px dotted #ccc; padding-bottom: 8px; align-items: center;">
+                                <span style="font-weight: bold; min-width: 80px;">₹${item.amount}</span>
+                                <span style="margin-left: 20px; flex: 1;">${item.product}</span>
                             </div>
                         `).join('')}
                     </div>
                     
-                    <div style="text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; border: 2px solid #000; padding: 10px;">
+                    <div style="text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0; border: 3px solid #000; padding: 15px;">
                         <p style="margin: 0;">कुल राशि: ₹${total}</p>
                     </div>
                     
-                    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+                    <div style="text-align: center; margin-top: 25px; font-size: 16px; color: #666;">
                         <p style="margin: 0;">धन्यवाद! फिर आइएगा</p>
-                        <p style="margin: 5px 0;">🙏</p>
+                        <p style="margin: 8px 0; font-size: 20px;">🙏</p>
                     </div>
                 </div>
             `;
@@ -1425,14 +1527,12 @@
 
         function openBillHistory() {
             document.getElementById('billHistoryModal').classList.remove('hidden');
-            document.getElementById('billHistoryModal').classList.add('flex');
             document.getElementById('menuDropdown').classList.add('hidden');
             displayBillHistory();
         }
 
         function closeBillHistoryModal() {
             document.getElementById('billHistoryModal').classList.add('hidden');
-            document.getElementById('billHistoryModal').classList.remove('flex');
         }
 
         function displayBillHistory() {
@@ -1454,17 +1554,20 @@
                         ${receipt.items.length > 2 ? ` और ${receipt.items.length - 2} और...` : ''}
                     </div>
                     ${receipt.updatedDate ? `<div class="text-xs text-orange-600 dark:text-orange-400 mb-2">अपडेट: ${receipt.updatedDate} ${receipt.updatedTime}</div>` : ''}
-                    <div class="flex space-x-2">
+                    <div class="grid grid-cols-2 gap-1">
                         <button onclick="editReceipt(${receipt.id})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition duration-200">
                             ✏️ एडिट
                         </button>
-                        <button onclick="reprintBill(${receipt.id})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition duration-200">
+                        <button onclick="saveReceiptImage(${receipt.id})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition duration-200">
+                            📷 इमेज
+                        </button>
+                        <button onclick="reprintBill(${receipt.id})" class="text-xs bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded transition duration-200">
                             🖨️ प्रिंट
                         </button>
                         <button onclick="shareReceiptPDF(${receipt.id})" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition duration-200">
                             📤 शेयर
                         </button>
-                        <button onclick="deleteBill(${receipt.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition duration-200">
+                        <button onclick="deleteBill(${receipt.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition duration-200 col-span-2">
                             🗑️ हटाएं
                         </button>
                     </div>
@@ -1543,8 +1646,9 @@
                 const doc = new jsPDF();
                 
                 // Add content to PDF
+                const shopName = document.getElementById('shopTitle').textContent;
                 doc.setFontSize(20);
-                doc.text('🏪 दुकान रेट V3 - पर्ची', 20, 30);
+                doc.text(`${shopName} - पर्ची`, 20, 30);
                 
                 doc.setFontSize(12);
                 doc.text(`दिनांक: ${receipt.date}`, 20, 50);
@@ -1587,14 +1691,14 @@
         // Bakaya functions
         function openBakayaModal() {
             document.getElementById('bakayaModal').classList.remove('hidden');
-            document.getElementById('bakayaModal').classList.add('flex');
-            document.getElementById('menuDropdown').classList.add('hidden');
-            clearBakayaForm();
+            document.getElementById('addMenuDropdown').classList.add('hidden');
+            if (!editingBakayaId) {
+                clearBakayaForm();
+            }
         }
 
         function closeBakayaModal() {
             document.getElementById('bakayaModal').classList.add('hidden');
-            document.getElementById('bakayaModal').classList.remove('flex');
             clearBakayaForm();
             editingBakayaId = null;
         }
@@ -1744,8 +1848,9 @@
                 const now = new Date();
                 
                 // Add content to PDF
+                const shopName = document.getElementById('shopTitle').textContent;
                 doc.setFontSize(20);
-                doc.text('🏪 दुकान रेट V3 - बकाया', 20, 30);
+                doc.text(`${shopName} - बकाया`, 20, 30);
                 
                 doc.setFontSize(12);
                 doc.text(`दिनांक: ${now.toLocaleDateString('hi-IN')}`, 20, 50);
@@ -1778,38 +1883,39 @@
         }
 
         function generateBakayaHTML(name, amount, description, date, time) {
+            const shopName = document.getElementById('shopTitle').textContent;
             return `
-                <div style="font-family: 'Noto Sans Devanagari', sans-serif; max-width: 300px; margin: 0 auto; padding: 20px; border: 1px solid #000;">
-                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                        <h2 style="margin: 0; font-size: 20px; font-weight: bold;">🏪 दुकान रेट V3</h2>
-                        <p style="margin: 5px 0; font-size: 14px;">बकाया रसीद</p>
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 600px; margin: 0 auto; padding: 30px; border: 2px solid #000;">
+                    <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h2 style="margin: 0; font-size: 28px; font-weight: bold;">${shopName}</h2>
+                        <p style="margin: 8px 0; font-size: 18px;">बकाया रसीद</p>
                     </div>
                     
-                    <div style="margin-bottom: 15px; font-size: 12px; display: flex; justify-content: space-between;">
+                    <div style="margin-bottom: 20px; font-size: 16px; display: flex; justify-content: space-between;">
                         <span><strong>दिनांक:</strong> ${date}</span>
                         <span><strong>समय:</strong> ${time}</span>
                     </div>
                     
-                    <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
-                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">
+                    <div style="margin-bottom: 25px; padding: 20px; border: 2px solid #ccc; border-radius: 8px;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">
                             बकायाकर्ता: ${name}
                         </div>
                         
-                        <div style="font-size: 20px; font-weight: bold; color: #d32f2f; text-align: center; margin: 15px 0; padding: 10px; border: 2px solid #d32f2f;">
+                        <div style="font-size: 26px; font-weight: bold; color: #d32f2f; text-align: center; margin: 20px 0; padding: 15px; border: 3px solid #d32f2f; border-radius: 8px;">
                             बकाया राशि: ₹${amount}
                         </div>
                         
                         ${description ? `
-                            <div style="margin-top: 15px;">
-                                <strong>विवरण:</strong><br>
-                                <span style="font-size: 14px;">${description}</span>
+                            <div style="margin-top: 20px;">
+                                <strong style="font-size: 16px;">विवरण:</strong><br>
+                                <span style="font-size: 16px; margin-top: 8px; display: block;">${description}</span>
                             </div>
                         ` : ''}
                     </div>
                     
-                    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+                    <div style="text-align: center; margin-top: 25px; font-size: 16px; color: #666;">
                         <p style="margin: 0; font-weight: bold;">कृपया जल्दी भुगतान करें।</p>
-                        <p style="margin: 5px 0;">धन्यवाद! 🙏</p>
+                        <p style="margin: 8px 0; font-size: 20px;">धन्यवाद! 🙏</p>
                     </div>
                 </div>
             `;
@@ -1852,17 +1958,20 @@
                         <div class="text-lg font-medium text-gray-800 dark:text-white mb-2">${bakaya.name}</div>
                         ${bakaya.description ? `<div class="text-sm text-gray-600 dark:text-gray-300 mb-2">${bakaya.description}</div>` : ''}
                         ${bakaya.updatedDate ? `<div class="text-xs text-orange-600 dark:text-orange-400 mb-2">अपडेट: ${bakaya.updatedDate} ${bakaya.updatedTime}</div>` : ''}
-                        <div class="flex space-x-2">
+                        <div class="grid grid-cols-2 gap-1">
                             <button onclick="editBakaya(${bakaya.id})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition duration-200">
                                 ✏️ एडिट
                             </button>
-                            <button onclick="reprintBakaya(${bakaya.id})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition duration-200">
+                            <button onclick="saveBakayaHistoryImage(${bakaya.id})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition duration-200">
+                                📷 इमेज
+                            </button>
+                            <button onclick="reprintBakaya(${bakaya.id})" class="text-xs bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded transition duration-200">
                                 🖨️ प्रिंट
                             </button>
                             <button onclick="shareBakayaHistoryPDF(${bakaya.id})" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition duration-200">
                                 📤 शेयर
                             </button>
-                            <button onclick="deleteBakaya(${bakaya.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition duration-200">
+                            <button onclick="deleteBakaya(${bakaya.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition duration-200 col-span-2">
                                 🗑️ हटाएं
                             </button>
                         </div>
@@ -1944,8 +2053,9 @@
                 const doc = new jsPDF();
                 
                 // Add content to PDF
+                const shopName = document.getElementById('shopTitle').textContent;
                 doc.setFontSize(20);
-                doc.text('🏪 दुकान रेट V3 - बकाया', 20, 30);
+                doc.text(`${shopName} - बकाया`, 20, 30);
                 
                 doc.setFontSize(12);
                 doc.text(`दिनांक: ${bakaya.date}`, 20, 50);
@@ -1989,20 +2099,21 @@
         // Calculator functions
         function openCalculator() {
             document.getElementById('calculatorModal').classList.remove('hidden');
-            document.getElementById('calculatorModal').classList.add('flex');
             document.getElementById('menuDropdown').classList.add('hidden');
             clearCalc();
         }
 
         function closeCalculator() {
             document.getElementById('calculatorModal').classList.add('hidden');
-            document.getElementById('calculatorModal').classList.remove('flex');
         }
 
         function clearCalc() {
             calcExpression = '';
             calcResult = '';
+            calcSteps = [];
+            currentStepIndex = 0;
             document.getElementById('calcDisplay').value = '0';
+            updateCalcHistory();
         }
 
         function deleteLast() {
@@ -2044,12 +2155,8 @@
                     calcResult = result.toString();
                     document.getElementById('calcDisplay').value = calcResult;
                     
-                    // Store calculation history
-                    if (!window.calcHistory) window.calcHistory = [];
-                    window.calcHistory.push(`${calcExpression} = ${calcResult}`);
-                    if (window.calcHistory.length > 10) {
-                        window.calcHistory.shift();
-                    }
+                    // Add step to history
+                    addCalcStep(calcExpression, calcResult);
                     
                     calcExpression = calcResult; // Keep result for next calculation
                 } else {
@@ -2064,36 +2171,98 @@
             }
         }
 
+        let calcSteps = [];
+        let currentStepIndex = 0;
+
         function checkTotal() {
-            const currentValue = document.getElementById('calcDisplay').value;
-            
-            if (currentValue && currentValue !== '0' && currentValue !== 'Error') {
-                // If there's an incomplete expression, calculate it first
-                if (calcExpression && calcExpression !== calcResult && calcExpression !== currentValue) {
-                    calculateResult();
-                    const finalValue = document.getElementById('calcDisplay').value;
-                    showNotification(`✓ चेक: ${calcExpression} = ₹${finalValue}`, false);
+            if (calcSteps.length === 0) {
+                const currentValue = document.getElementById('calcDisplay').value;
+                if (currentValue && currentValue !== '0' && currentValue !== 'Error') {
+                    showNotification(`✓ चेक: ₹${currentValue}`, false);
                 } else {
-                    // Show step-by-step if there's history
-                    if (window.calcHistory && window.calcHistory.length > 0) {
-                        const lastCalc = window.calcHistory[window.calcHistory.length - 1];
-                        showNotification(`✓ चेक: ${lastCalc}`, false);
-                    } else {
-                        showNotification(`✓ चेक: ₹${currentValue}`, false);
-                    }
+                    showNotification('कोई वैल्यू नहीं मिली!', true);
                 }
-            } else {
-                showNotification('कोई वैल्यू नहीं मिली!', true);
+                return;
             }
+            
+            // Show current step
+            if (currentStepIndex < calcSteps.length) {
+                const step = calcSteps[currentStepIndex];
+                showNotification(`स्टेप ${currentStepIndex + 1}: ${step}`, false);
+                currentStepIndex++;
+            } else {
+                // Reset to beginning
+                currentStepIndex = 0;
+                const step = calcSteps[currentStepIndex];
+                showNotification(`स्टेप ${currentStepIndex + 1}: ${step}`, false);
+                currentStepIndex++;
+            }
+        }
+
+        function updateCalcHistory() {
+            const historyDiv = document.getElementById('calcHistory');
+            if (calcSteps.length === 0) {
+                historyDiv.innerHTML = '<div class="text-center text-gray-400">कोई हिस्ट्री नहीं</div>';
+            } else {
+                historyDiv.innerHTML = calcSteps.map((step, index) => 
+                    `<div class="text-right ${index === calcSteps.length - 1 ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}">${step}</div>`
+                ).join('');
+            }
+        }
+
+        function addCalcStep(expression, result) {
+            calcSteps.push(`${expression} = ${result}`);
+            if (calcSteps.length > 10) {
+                calcSteps.shift();
+            }
+            updateCalcHistory();
+        }
+
+        // New menu functions
+        function toggleAddMenu() {
+            const addMenu = document.getElementById('addMenuDropdown');
+            addMenu.classList.toggle('hidden');
+        }
+
+        function showItemHistory() {
+            if (currentLongPressItem !== null) {
+                const item = items[currentLongPressItem];
+                let historyText = `📊 ${item.name} की हिस्ट्री:\n\n`;
+                
+                if (item.varieties && item.varieties.length > 0) {
+                    item.varieties.forEach((variety, index) => {
+                        historyText += `${index + 1}. ${variety.name}\n`;
+                        if (variety.rates && variety.rates.length > 0) {
+                            variety.rates.forEach((rate, rIndex) => {
+                                historyText += `   • ₹${rate.rate} ${rate.unit}\n`;
+                            });
+                        }
+                        if (variety.timestamp) {
+                            historyText += `   📅 ${variety.timestamp}\n`;
+                        }
+                        historyText += '\n';
+                    });
+                } else {
+                    historyText += 'कोई हिस्ट्री नहीं मिली।';
+                }
+                
+                alert(historyText);
+            }
+            hideLongPressMenu();
         }
 
         // Event listeners
         document.addEventListener('click', function(e) {
             const menu = document.getElementById('menuDropdown');
+            const addMenu = document.getElementById('addMenuDropdown');
             const longPressMenu = document.getElementById('longPressMenu');
             
             if (!e.target.closest('#menuDropdown') && !e.target.closest('button[onclick="toggleMenu()"]')) {
                 menu.classList.add('hidden');
+            }
+            
+            if (!e.target.closest('#addMenuDropdown') && !e.target.closest('button[onclick="toggleAddMenu()"]')) {
+                addMenu.classList.add('hidden');
             }
             
             if (!e.target.closest('#longPressMenu')) {
@@ -2130,6 +2299,10 @@
             if (e.target === this) closeCalculator();
         });
 
+        document.getElementById('allItemsModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAllItemsView();
+        });
+
         // Keyboard support for calculator
         document.addEventListener('keydown', function(e) {
             const calcModal = document.getElementById('calculatorModal');
@@ -2160,6 +2333,118 @@
             }
         });
 
+        // All items view functions
+        function openAllItemsView() {
+            document.getElementById('allItemsModal').classList.remove('hidden');
+            document.getElementById('menuDropdown').classList.add('hidden');
+            displayAllItems();
+        }
+
+        function closeAllItemsView() {
+            document.getElementById('allItemsModal').classList.add('hidden');
+        }
+
+        function displayAllItems() {
+            const allItemsList = document.getElementById('allItemsList');
+            const totalItemsCount = document.getElementById('totalItemsCount');
+            
+            totalItemsCount.textContent = items.length;
+            
+            if (items.length === 0) {
+                allItemsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">कोई वस्तु नहीं मिली</p>';
+                return;
+            }
+
+            allItemsList.innerHTML = items.map((item, index) => `
+                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600 p-4">
+                    <h3 class="font-semibold text-gray-800 dark:text-white text-lg mb-2">${index + 1}. ${item.name}</h3>
+                    <div class="space-y-2">
+                        ${item.varieties.map(variety => `
+                            <div class="variety-item">
+                                ${variety.name !== 'सामान्य' ? `<div class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">${variety.name}</div>` : ''}
+                                <div class="flex flex-wrap gap-2">
+                                    ${variety.rates.map(rateInfo => `
+                                        <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-sm font-medium">
+                                            ₹${rateInfo.rate} ${rateInfo.unit}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                                ${variety.timestamp ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">📅 ${variety.timestamp}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function shareAllItemsPDF() {
+            if (items.length === 0) {
+                showNotification('कोई वस्तु नहीं मिली!', true);
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const shopName = document.getElementById('shopTitle').textContent;
+                const now = new Date();
+                
+                // Add content to PDF
+                doc.setFontSize(20);
+                doc.text(`${shopName} - सभी वस्तु सूची`, 20, 30);
+                
+                doc.setFontSize(12);
+                doc.text(`दिनांक: ${now.toLocaleDateString('hi-IN')}`, 20, 50);
+                doc.text(`समय: ${now.toLocaleTimeString('hi-IN')}`, 120, 50);
+                doc.text(`कुल वस्तुएं: ${items.length}`, 20, 65);
+                
+                let yPos = 85;
+                items.forEach((item, index) => {
+                    if (yPos > 250) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    
+                    doc.setFontSize(14);
+                    doc.text(`${index + 1}. ${item.name}`, 20, yPos);
+                    yPos += 15;
+                    
+                    item.varieties.forEach(variety => {
+                        if (yPos > 250) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        
+                        doc.setFontSize(10);
+                        if (variety.name !== 'सामान्य') {
+                            doc.text(`   ${variety.name}:`, 25, yPos);
+                            yPos += 10;
+                        }
+                        
+                        variety.rates.forEach(rate => {
+                            if (yPos > 250) {
+                                doc.addPage();
+                                yPos = 20;
+                            }
+                            doc.text(`     ₹${rate.rate} ${rate.unit}`, 30, yPos);
+                            yPos += 8;
+                        });
+                        yPos += 5;
+                    });
+                    yPos += 5;
+                });
+                
+                // Save PDF
+                const fileName = `सभी_वस्तु_सूची_${now.getTime()}.pdf`;
+                doc.save(fileName);
+                
+                showNotification('PDF डाउनलोड हो गई!');
+            } catch (error) {
+                showNotification('PDF बनाने में समस्या!', true);
+            }
+        }
+
         // Theme functions
         let currentTheme = 'auto';
         
@@ -2182,14 +2467,7 @@
                 'auto': 'ऑटो',
                 'light': 'लाइट',
                 'dark': 'डार्क',
-                'blue': 'ब्लू',
-                'green': 'ग्रीन',
-                'purple': 'पर्पल',
-                'red': 'रेड',
-                'orange': 'ऑरेंज',
-                'pink': 'पिंक',
-                'yellow': 'येलो',
-                'teal': 'टील'
+                'grayscale': 'ग्रे स्केल'
             };
             return themeNames[theme] || theme;
         }
@@ -2198,23 +2476,21 @@
             const body = document.body;
             
             // Remove all theme classes
-            body.className = body.className.replace(/theme-\w+/g, '');
+            body.className = body.className.replace(/theme-\w+/g, '').replace(/dark/g, '').trim();
             
             if (theme === 'auto') {
                 // Use system preference
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    body.classList.add('dark');
+                    body.classList.add('theme-dark');
                 } else {
-                    body.classList.remove('dark');
+                    body.classList.add('theme-light');
                 }
             } else if (theme === 'dark') {
-                body.classList.add('dark');
+                body.classList.add('theme-dark');
             } else if (theme === 'light') {
-                body.classList.remove('dark');
-            } else {
-                // Custom color themes
-                body.classList.add(`theme-${theme}`);
-                body.classList.remove('dark');
+                body.classList.add('theme-light');
+            } else if (theme === 'grayscale') {
+                body.classList.add('theme-grayscale');
             }
         }
         
@@ -2291,26 +2567,26 @@
         
         function generateAllItemsHTML(items, shopName, date, time) {
             return `
-                <div style="font-family: 'Noto Sans Devanagari', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-                        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">${shopName}</h1>
-                        <p style="margin: 5px 0; font-size: 16px;">सभी वस्तुओं की सूची</p>
-                        <p style="margin: 5px 0; font-size: 12px;">दिनांक: ${date} | समय: ${time}</p>
+                <div style="font-family: 'Noto Sans Devanagari', sans-serif; width: 100%; max-width: 900px; margin: 0 auto; padding: 30px;">
+                    <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 25px;">
+                        <h1 style="margin: 0; font-size: 32px; font-weight: bold;">${shopName}</h1>
+                        <p style="margin: 8px 0; font-size: 20px;">सभी वस्तुओं की सूची</p>
+                        <p style="margin: 8px 0; font-size: 16px;">दिनांक: ${date} | समय: ${time}</p>
                     </div>
                     
-                    <div style="margin-bottom: 20px;">
-                        <p style="font-size: 16px; font-weight: bold;">कुल वस्तुएं: ${items.length}</p>
+                    <div style="margin-bottom: 25px; text-align: center;">
+                        <p style="font-size: 20px; font-weight: bold; color: #007bff;">कुल वस्तुएं: ${items.length}</p>
                     </div>
                     
                     ${items.map((item, index) => `
-                        <div style="border: 1px solid #ccc; margin-bottom: 15px; padding: 15px; border-radius: 8px;">
-                            <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold; color: #333;">${index + 1}. ${item.name}</h3>
+                        <div style="border: 2px solid #ccc; margin-bottom: 20px; padding: 20px; border-radius: 12px; background-color: #fafafa;">
+                            <h3 style="margin: 0 0 15px 0; font-size: 22px; font-weight: bold; color: #333;">${index + 1}. ${item.name}</h3>
                             ${item.varieties.map(variety => `
-                                <div style="margin-left: 20px; margin-bottom: 8px; padding: 8px; background-color: #f9f9f9; border-left: 3px solid #007bff;">
-                                    ${variety.name !== 'सामान्य' ? `<div style="font-weight: bold; margin-bottom: 5px; color: #555;">${variety.name}</div>` : ''}
-                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div style="margin-left: 25px; margin-bottom: 12px; padding: 12px; background-color: #f0f8ff; border-left: 4px solid #007bff; border-radius: 6px;">
+                                    ${variety.name !== 'सामान्य' ? `<div style="font-weight: bold; margin-bottom: 8px; color: #555; font-size: 16px;">${variety.name}</div>` : ''}
+                                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                                         ${variety.rates.map(rateInfo => `
-                                            <span style="background-color: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 14px; font-weight: bold;">
+                                            <span style="background-color: #007bff; color: white; padding: 6px 12px; border-radius: 15px; font-size: 16px; font-weight: bold;">
                                                 ₹${rateInfo.rate} ${rateInfo.unit}
                                             </span>
                                         `).join('')}
@@ -2320,9 +2596,9 @@
                         </div>
                     `).join('')}
                     
-                    <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #666; border-top: 1px solid #ccc; padding-top: 15px;">
+                    <div style="text-align: center; margin-top: 40px; font-size: 16px; color: #666; border-top: 2px solid #ccc; padding-top: 20px;">
                         <p style="margin: 0;">दुकान रेट ऐप द्वारा तैयार</p>
-                        <p style="margin: 5px 0;">धन्यवाद! 🙏</p>
+                        <p style="margin: 8px 0; font-size: 20px;">धन्यवाद! 🙏</p>
                     </div>
                 </div>
             `;
@@ -2332,7 +2608,7 @@
         // Back button functionality
         function handleBackButton() {
             // Close any open modals
-            const modals = ['addModal', 'editModal', 'billModal', 'bakayaModal', 'billHistoryModal', 'bakayaHistoryModal', 'calculatorModal'];
+            const modals = ['addModal', 'editModal', 'billModal', 'bakayaModal', 'billHistoryModal', 'bakayaHistoryModal', 'calculatorModal', 'allItemsModal'];
             let modalClosed = false;
             
             modals.forEach(modalId => {
@@ -2340,15 +2616,32 @@
                 if (modal && !modal.classList.contains('hidden')) {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
+                    
+                    // Call specific close functions to clean up
+                    if (modalId === 'addModal') closeAddModal();
+                    else if (modalId === 'editModal') closeEditModal();
+                    else if (modalId === 'billModal') closeBillModal();
+                    else if (modalId === 'bakayaModal') closeBakayaModal();
+                    else if (modalId === 'billHistoryModal') closeBillHistoryModal();
+                    else if (modalId === 'bakayaHistoryModal') closeBakayaHistoryModal();
+                    else if (modalId === 'calculatorModal') closeCalculator();
+                    else if (modalId === 'allItemsModal') closeAllItemsView();
+                    
                     modalClosed = true;
                 }
             });
             
             // Close menus
             const menu = document.getElementById('menuDropdown');
+            const addMenu = document.getElementById('addMenuDropdown');
             const themeMenu = document.getElementById('themeSubmenu');
+            
             if (!menu.classList.contains('hidden')) {
                 menu.classList.add('hidden');
+                modalClosed = true;
+            }
+            if (!addMenu.classList.contains('hidden')) {
+                addMenu.classList.add('hidden');
                 modalClosed = true;
             }
             if (!themeMenu.classList.contains('hidden')) {
@@ -2366,17 +2659,151 @@
             }
         });
 
+        // Image save functions
+        function createImageFromHTML(htmlContent, filename) {
+            try {
+                // Create a temporary div
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.top = '-9999px';
+                tempDiv.style.background = 'white';
+                document.body.appendChild(tempDiv);
+
+                // Use html2canvas if available, otherwise fallback
+                if (window.html2canvas) {
+                    html2canvas(tempDiv, {
+                        backgroundColor: 'white',
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true
+                    }).then(canvas => {
+                        // Create download link
+                        const link = document.createElement('a');
+                        link.download = filename;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        document.body.removeChild(tempDiv);
+                        showNotification('इमेज डाउनलोड हो गई!');
+                    }).catch(error => {
+                        document.body.removeChild(tempDiv);
+                        showNotification('इमेज बनाने में समस्या!', true);
+                    });
+                } else {
+                    // Fallback: Create a simple canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 600;
+                    canvas.height = 800;
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'black';
+                    ctx.font = '16px Arial';
+                    ctx.fillText('इमेज सेव करने के लिए html2canvas लाइब्रेरी चाहिए', 50, 100);
+                    
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    document.body.removeChild(tempDiv);
+                    showNotification('बेसिक इमेज डाउनलोड हो गई!');
+                }
+            } catch (error) {
+                showNotification('इमेज बनाने में समस्या!', true);
+            }
+        }
+
+        function saveBillImage() {
+            if (currentReceiptItems.length === 0) {
+                showNotification('कम से कम एक सामान जोड़ें!', true);
+                return;
+            }
+
+            const total = currentReceiptItems.reduce((sum, item) => sum + item.amount, 0);
+            const now = new Date();
+            const htmlContent = generateReceiptHTML(currentReceiptItems, total, now.toLocaleDateString('hi-IN'), now.toLocaleTimeString('hi-IN'));
+            const filename = `पर्ची_${now.getTime()}.png`;
+            
+            createImageFromHTML(htmlContent, filename);
+        }
+
+        function saveBakayaImage() {
+            const name = document.getElementById('bakayaName').value.trim() || 'ग्राहक';
+            const amount = document.getElementById('bakayaAmount').value.trim();
+            const description = document.getElementById('bakayaDescription').value.trim();
+
+            if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+                showNotification('कृपया सही राशि भरें!', true);
+                return;
+            }
+
+            const now = new Date();
+            const htmlContent = generateBakayaHTML(name, parseFloat(amount), description, now.toLocaleDateString('hi-IN'), now.toLocaleTimeString('hi-IN'));
+            const filename = `बकाया_${name}_${now.getTime()}.png`;
+            
+            createImageFromHTML(htmlContent, filename);
+        }
+
+        function saveAllItemsImage() {
+            if (items.length === 0) {
+                showNotification('कोई वस्तु नहीं मिली!', true);
+                return;
+            }
+
+            const shopName = document.getElementById('shopTitle').textContent;
+            const now = new Date();
+            const htmlContent = generateAllItemsHTML(items, shopName, now.toLocaleDateString('hi-IN'), now.toLocaleTimeString('hi-IN'));
+            const filename = `सभी_वस्तु_सूची_${now.getTime()}.png`;
+            
+            createImageFromHTML(htmlContent, filename);
+        }
+
+        function saveReceiptImage(receiptId) {
+            const receipt = receiptHistory.find(r => r.id === receiptId);
+            if (!receipt) return;
+
+            const htmlContent = generateReceiptHTML(receipt.items, receipt.total, receipt.date, receipt.time);
+            const filename = `पर्ची_${receipt.date.replace(/\//g, '-')}_${receipt.id}.png`;
+            
+            createImageFromHTML(htmlContent, filename);
+        }
+
+        function saveBakayaHistoryImage(bakayaId) {
+            const bakaya = bakayaHistory.find(b => b.id === bakayaId);
+            if (!bakaya) return;
+
+            const htmlContent = generateBakayaHTML(bakaya.name, bakaya.amount, bakaya.description, bakaya.date, bakaya.time);
+            const filename = `बकाया_${bakaya.name}_${bakaya.date.replace(/\//g, '-')}_${bakaya.id}.png`;
+            
+            createImageFromHTML(htmlContent, filename);
+        }
+
         // Initialize the app when page loads
         window.addEventListener('load', function() {
             try {
                 initApp();
                 // Push initial state for back button handling
                 history.pushState(null, null, location.href);
+                
+                // Load html2canvas library for image generation
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.onload = function() {
+                    console.log('html2canvas loaded successfully');
+                };
+                script.onerror = function() {
+                    console.log('html2canvas failed to load, using fallback');
+                };
+                document.head.appendChild(script);
             } catch (error) {
                 console.error('App initialization error:', error);
                 showNotification('ऐप लोड करने में समस्या', true);
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c607707300444f',t:'MTc1NDcyOTY2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c6559991df45ed',t:'MTc1NDczMjg3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
