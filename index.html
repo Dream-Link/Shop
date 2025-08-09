@@ -6,10 +6,11 @@
     <title>दुकान मैनेजमेंट ऐप</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
         
         body {
-            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+            transition: all 0.3s ease;
         }
         
         .print-only {
@@ -29,21 +30,172 @@
             }
         }
         
+        /* Modern Card Styling */
+        .modern-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .modern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Android Style Icons */
+        .android-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: all 0.2s ease;
+        }
+        
+        .android-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Professional Button Styling */
+        .pro-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pro-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* VIP Theme Styles */
+        .vip-gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #1a1a1a;
+        }
+        
+        .vip-gold .bg-white {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%) !important;
+            border: 1px solid #ffd700;
+        }
+        
+        .vip-gold .modern-card {
+            background: rgba(255, 249, 230, 0.95);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+        }
+        
+        .vip-platinum {
+            background: linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%);
+            color: #1a1a1a;
+        }
+        
+        .vip-platinum .bg-white {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%) !important;
+            border: 1px solid #c0c0c0;
+        }
+        
+        .vip-platinum .modern-card {
+            background: rgba(248, 248, 248, 0.95);
+            border: 1px solid rgba(192, 192, 192, 0.3);
+            box-shadow: 0 8px 32px rgba(192, 192, 192, 0.2);
+        }
+        
+        .vip-diamond {
+            background: linear-gradient(135deg, #b8f2ff 0%, #74b9ff 100%);
+            color: #1a1a1a;
+        }
+        
+        .vip-diamond .bg-white {
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%) !important;
+            border: 1px solid #74b9ff;
+        }
+        
+        .vip-diamond .modern-card {
+            background: rgba(240, 249, 255, 0.95);
+            border: 1px solid rgba(116, 185, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(116, 185, 255, 0.2);
+        }
+        
+        .vip-emerald {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+        }
+        
+        .vip-emerald .bg-white {
+            background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%) !important;
+            border: 1px solid #00b894;
+            color: #1a1a1a !important;
+        }
+        
+        .vip-emerald .modern-card {
+            background: rgba(232, 248, 245, 0.95);
+            border: 1px solid rgba(0, 184, 148, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
+        }
+        
+        .vip-ruby {
+            background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+            color: white;
+        }
+        
+        .vip-ruby .bg-white {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%) !important;
+            border: 1px solid #e17055;
+            color: #1a1a1a !important;
+        }
+        
+        .vip-ruby .modern-card {
+            background: rgba(255, 234, 167, 0.95);
+            border: 1px solid rgba(225, 112, 85, 0.3);
+            box-shadow: 0 8px 32px rgba(225, 112, 85, 0.2);
+        }
+        
+        .vip-royal {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+        }
+        
+        .vip-royal .bg-white {
+            background: linear-gradient(135deg, #f8f7ff 0%, #e8e4ff 100%) !important;
+            border: 1px solid #6c5ce7;
+            color: #1a1a1a !important;
+        }
+        
+        .vip-royal .modern-card {
+            background: rgba(248, 247, 255, 0.95);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.2);
+        }
+        
+        /* Dark Theme */
         .dark {
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
             color: #ffffff;
         }
         
         .dark .bg-white {
-            background-color: #2d2d2d !important;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+            border: 1px solid #4a5568;
+        }
+        
+        .dark .modern-card {
+            background: rgba(45, 55, 72, 0.95);
+            border: 1px solid rgba(74, 85, 104, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         
         .dark .bg-gray-50 {
-            background-color: #3d3d3d !important;
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%) !important;
         }
         
         .dark .bg-gray-100 {
-            background-color: #4d4d4d !important;
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%) !important;
         }
         
         .dark .text-gray-900 {
@@ -68,6 +220,60 @@
         
         .customer-menu-btn {
             display: none;
+        }
+        
+        /* Professional List Items */
+        .pro-list-item {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+        
+        .pro-list-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Modern Input Styling */
+        .modern-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        
+        .modern-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+        
+        /* Calculator Modern Style */
+        .calc-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calc-btn-modern {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            backdrop-filter: blur(8px);
+        }
+        
+        .calc-btn-modern:hover {
+            transform: scale(1.05);
+        }
+        
+        .calc-btn-modern:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -106,9 +312,15 @@
                                 <div class="px-4 py-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">थीम चुनें:</label>
                                     <select id="themeSelect" class="w-full p-2 border border-gray-300 rounded-md text-sm">
-                                        <option value="light">Light</option>
-                                        <option value="dark">Dark</option>
-                                        <option value="auto">Auto (डिवाइस के अनुसार)</option>
+                                        <option value="light">💡 Light</option>
+                                        <option value="dark">🌙 Dark</option>
+                                        <option value="vip-gold">👑 VIP Gold</option>
+                                        <option value="vip-platinum">💎 VIP Platinum</option>
+                                        <option value="vip-diamond">💠 VIP Diamond</option>
+                                        <option value="vip-emerald">🟢 VIP Emerald</option>
+                                        <option value="vip-ruby">🔴 VIP Ruby</option>
+                                        <option value="vip-royal">🟣 VIP Royal</option>
+                                        <option value="auto">🤖 Auto (डिवाइस के अनुसार)</option>
                                     </select>
                                 </div>
                             </div>
@@ -140,7 +352,7 @@
             
             <!-- Home Mode -->
             <div id="homeMode" class="tab-content">
-                <div class="bg-white rounded-lg shadow p-3 sm:p-6">
+                <div class="modern-card p-3 sm:p-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                         <h2 class="text-lg font-semibold text-gray-900">वस्तुओं की दर सूची</h2>
                         <div class="flex items-center gap-2 sm:gap-3">
@@ -173,7 +385,7 @@
                     
                     <!-- Search Input (Hidden by default) -->
                     <div id="itemSearchContainer" class="hidden mb-4">
-                        <input type="text" id="itemSearchInput" class="w-full p-3 border border-gray-300 rounded-md text-base" placeholder="वस्तु का नाम खोजें...">
+                        <input type="text" id="itemSearchInput" class="modern-input w-full p-3 text-base" placeholder="वस्तु का नाम खोजें...">
                     </div>
                     
                     <div id="itemsList" class="space-y-3">
@@ -184,7 +396,7 @@
 
             <!-- Account Mode -->
             <div id="accountMode" class="tab-content hidden">
-                <div class="bg-white rounded-lg shadow p-3 sm:p-6">
+                <div class="modern-card p-3 sm:p-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                         <h2 class="text-lg font-semibold text-gray-900">बहीखाता</h2>
                         <div class="flex items-center gap-2 sm:gap-3">
@@ -218,7 +430,7 @@
                     
                     <!-- Search Input (Hidden by default) -->
                     <div id="customerSearchContainer" class="hidden mb-4">
-                        <input type="text" id="customerSearchInput" class="w-full p-3 border border-gray-300 rounded-md text-base" placeholder="ग्राहक का नाम खोजें...">
+                        <input type="text" id="customerSearchInput" class="modern-input w-full p-3 text-base" placeholder="ग्राहक का नाम खोजें...">
                     </div>
                     
                     <div id="customersList" class="space-y-4">
@@ -229,7 +441,7 @@
 
             <!-- Calculator Mode -->
             <div id="calculatorMode" class="tab-content hidden">
-                <div class="bg-white rounded-lg shadow p-3 sm:p-6 max-w-sm sm:max-w-md mx-auto">
+                <div class="calc-modern p-3 sm:p-6 max-w-sm sm:max-w-md mx-auto">
                     <div class="calculator">
                         <div class="mb-3 sm:mb-4">
                             <div id="calcSteps" class="mb-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-md min-h-[50px] sm:min-h-[60px]">
@@ -239,28 +451,28 @@
                             <input id="calcDisplay" type="text" class="w-full p-3 sm:p-4 text-right text-lg sm:text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" oninput="handleDisplayInput()" onkeydown="handleKeyDown(event)">
                         </div>
                         <div class="grid grid-cols-4 gap-2 sm:gap-3">
-                            <button class="calc-btn bg-red-500 hover:bg-red-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="clearCalculator()">C</button>
-                            <button class="calc-btn bg-orange-500 hover:bg-orange-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="deleteLast()">⌫</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('/')">/</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('*')">×</button>
+                            <button class="calc-btn-modern bg-red-500 hover:bg-red-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="clearCalculator()">C</button>
+                            <button class="calc-btn-modern bg-orange-500 hover:bg-orange-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="deleteLast()">⌫</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('/')">/</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('*')">×</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('7')">7</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('8')">8</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('9')">9</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('-')">-</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('7')">7</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('8')">8</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('9')">9</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('-')">-</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
-                            <button class="calc-btn bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold row-span-2" onclick="appendToDisplay('+')">+</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
+                            <button class="calc-btn-modern bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold row-span-2" onclick="appendToDisplay('+')">+</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
                             
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
-                            <button class="calc-btn bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
-                            <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 rounded-md text-lg sm:text-xl font-semibold" onclick="calculate()">=</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="calculate()">=</button>
                         </div>
                         
                         <div class="mt-3 sm:mt-4 flex gap-2">
@@ -286,7 +498,7 @@
             <form id="addItemForm">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">वस्तु का नाम</label>
-                    <input type="text" id="itemName" class="w-full p-3 border border-gray-300 rounded-md text-base" required>
+                    <input type="text" id="itemName" class="modern-input w-full p-3 text-base" required>
                 </div>
                 
                 <div class="mb-4">
@@ -330,7 +542,7 @@
             <form id="addCustomerForm">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक का नाम</label>
-                    <input type="text" id="customerName" class="w-full p-3 border border-gray-300 rounded-md text-base" required>
+                    <input type="text" id="customerName" class="modern-input w-full p-3 text-base" required>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md text-base">जोड़ें</button>
@@ -508,10 +720,24 @@
 
         function applyTheme(theme) {
             const body = document.body;
-            body.classList.remove('dark');
+            
+            // Remove all theme classes
+            body.classList.remove('dark', 'vip-gold', 'vip-platinum', 'vip-diamond', 'vip-emerald', 'vip-ruby', 'vip-royal');
             
             if (theme === 'dark') {
                 body.classList.add('dark');
+            } else if (theme === 'vip-gold') {
+                body.classList.add('vip-gold');
+            } else if (theme === 'vip-platinum') {
+                body.classList.add('vip-platinum');
+            } else if (theme === 'vip-diamond') {
+                body.classList.add('vip-diamond');
+            } else if (theme === 'vip-emerald') {
+                body.classList.add('vip-emerald');
+            } else if (theme === 'vip-ruby') {
+                body.classList.add('vip-ruby');
+            } else if (theme === 'vip-royal') {
+                body.classList.add('vip-royal');
             } else if (theme === 'auto') {
                 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     body.classList.add('dark');
@@ -587,7 +813,7 @@
             sortedItems.forEach((item, originalIndex) => {
                 const actualIndex = items.findIndex(i => i === item);
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'border border-gray-200 rounded-md p-4 hover:bg-gray-50';
+                itemDiv.className = 'pro-list-item p-4';
                 
                 let variantsHtml = '';
                 if (item.variants && item.variants.length > 0) {
@@ -760,7 +986,7 @@
                 const actualIndex = customers.findIndex(c => c === customer);
                 const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
                 const customerDiv = document.createElement('div');
-                customerDiv.className = 'border border-gray-200 rounded-md p-4 cursor-pointer hover:bg-gray-50';
+                customerDiv.className = 'pro-list-item p-4 cursor-pointer';
                 
                 customerDiv.innerHTML = `
                     <div class="flex justify-between items-start mb-3" onclick="toggleCustomerDetails(${actualIndex})">
@@ -1219,7 +1445,7 @@
         }
 
         function calculate() {
-            if (!calcDisplay) {
+            if (!calcDisplay || calcDisplay.trim() === '') {
                 return;
             }
             
@@ -1238,6 +1464,7 @@
                 
                 // Validate expression before evaluation
                 if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
+                    document.getElementById('calcStepsContent').textContent = 'Error: गलत गणना';
                     return;
                 }
                 
@@ -1251,7 +1478,7 @@
                 
                 // Check if result is valid
                 if (isNaN(result) || !isFinite(result)) {
-                    document.getElementById('calcStepsContent').textContent = 'Error';
+                    document.getElementById('calcStepsContent').textContent = 'Error: गलत परिणाम';
                     return;
                 }
                 
@@ -1262,12 +1489,12 @@
                 const displayExpression = calcDisplay.replace(/\*/g, '×');
                 currentCalculation = `${displayExpression} = ${roundedResult}`;
                 
-                // Add to calculation steps history
-                if (!calcSteps.includes(currentCalculation)) {
+                // Add to calculation steps history - only if it's a valid calculation
+                if (displayExpression && roundedResult !== undefined) {
                     calcSteps.push(currentCalculation);
                 }
                 
-                // Update steps to show the complete calculation - DON'T CLEAR IT
+                // Update steps to show the complete calculation
                 document.getElementById('calcStepsContent').textContent = currentCalculation;
                 
                 // Set display to result for further calculations
@@ -1277,6 +1504,7 @@
             } catch (error) {
                 // Show error in steps without changing display
                 document.getElementById('calcStepsContent').textContent = 'Error: गलत गणना';
+                console.error('Calculator error:', error);
             }
         }
 
@@ -1342,28 +1570,67 @@
             const historyContent = document.getElementById('calcHistoryContent');
             historyContent.innerHTML = '';
 
-            if (calcHistory.length === 0) {
-                historyContent.innerHTML = '<p class="text-gray-500 text-center py-4">कोई हिस्ट्री नहीं मिली</p>';
-                return;
+            // Show calculator steps history first
+            if (calcSteps.length > 0) {
+                const stepsDiv = document.createElement('div');
+                stepsDiv.className = 'mb-4';
+                stepsDiv.innerHTML = '<h4 class="font-semibold text-gray-700 mb-2">गणना के चरण:</h4>';
+                
+                calcSteps.slice().reverse().forEach((step, index) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'border border-blue-200 rounded-md p-3 bg-blue-50 mb-2 cursor-pointer hover:bg-blue-100';
+                    stepDiv.innerHTML = `
+                        <div class="font-mono text-lg text-blue-800">${step}</div>
+                        <div class="text-xs text-blue-600 mt-1">क्लिक करके दोबारा उपयोग करें</div>
+                    `;
+                    
+                    // Add click handler to reuse calculation
+                    stepDiv.addEventListener('click', function() {
+                        const parts = step.split(' = ');
+                        if (parts.length === 2) {
+                            calcDisplay = parts[1];
+                            document.getElementById('calcDisplay').value = calcDisplay;
+                            document.getElementById('calcStepsContent').textContent = step;
+                            document.getElementById('calcHistoryModal').classList.add('hidden');
+                        }
+                    });
+                    
+                    stepsDiv.appendChild(stepDiv);
+                });
+                
+                historyContent.appendChild(stepsDiv);
             }
 
-            calcHistory.slice().reverse().forEach((entry, index) => {
-                const historyDiv = document.createElement('div');
-                historyDiv.className = 'border border-gray-200 rounded-md p-3 bg-gray-50';
-                historyDiv.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <span class="font-semibold text-green-600">₹${entry.amount}</span>
-                            <span class="text-sm text-gray-600 ml-2">${new Date(entry.date).toLocaleString('hi-IN')}</span>
+            // Show bahikhata history
+            if (calcHistory.length > 0) {
+                const bahikhataDiv = document.createElement('div');
+                bahikhataDiv.innerHTML = '<h4 class="font-semibold text-gray-700 mb-2">बहीखाता में जोड़े गए:</h4>';
+                
+                calcHistory.slice().reverse().forEach((entry, index) => {
+                    const historyDiv = document.createElement('div');
+                    historyDiv.className = 'border border-gray-200 rounded-md p-3 bg-gray-50 mb-2';
+                    historyDiv.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="font-semibold text-green-600">₹${entry.amount}</span>
+                                <span class="text-sm text-gray-600 ml-2">${new Date(entry.date).toLocaleString('hi-IN')}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-sm">
-                        <div><strong>ग्राहक:</strong> ${entry.customerName}</div>
-                        <div><strong>विवरण:</strong> ${entry.description}</div>
-                    </div>
-                `;
-                historyContent.appendChild(historyDiv);
-            });
+                        <div class="text-sm">
+                            <div><strong>ग्राहक:</strong> ${entry.customerName}</div>
+                            <div><strong>विवरण:</strong> ${entry.description}</div>
+                        </div>
+                    `;
+                    bahikhataDiv.appendChild(historyDiv);
+                });
+                
+                historyContent.appendChild(bahikhataDiv);
+            }
+
+            // If no history at all
+            if (calcSteps.length === 0 && calcHistory.length === 0) {
+                historyContent.innerHTML = '<p class="text-gray-500 text-center py-4">कोई हिस्ट्री नहीं मिली</p>';
+            }
         }
 
         function saveCalcHistory() {
@@ -1372,6 +1639,7 @@
 
         function clearCalcHistory() {
             if (confirm('क्या आप सभी हिस्ट्री साफ़ करना चाहते हैं?')) {
+                calcSteps = [];
                 calcHistory = [];
                 saveCalcHistory();
                 renderCalcHistory();
@@ -2331,5 +2599,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9b18f75f3ffa7',t:'MTc1NDc2ODA5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9bf9dd319c795',t:'MTc1NDc2ODY3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
